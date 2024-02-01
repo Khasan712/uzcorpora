@@ -1,0 +1,69 @@
+version: '3.9'
+
+services:
+  uzcorpora:
+    build: ./
+    container_name: "uzcorpora"
+    restart: always
+    command: bash entrypoint.sh
+    volumes:
+      - .:/uzcorpora
+    ports:
+      - 8060:8060
+    env_file:
+      - ./.env
+    depends_on:
+      - db_uzcorpora
+
+  db_uzcorpora:
+    image: postgres:16
+    container_name: "db_uzcorpora"
+    volumes:
+      - postgres_data_uzcorpora:/var/lib/postgresql/data/
+    env_file:
+      - ./.env
+    ports:
+      - 5434:5432
+
+  redis_uzcorpora:
+    container_name: redis_uzcorpora
+    image: redis:alpine
+    ports:
+      - 6382:6379
+    volumes:
+      - redis_data_uzcorpora:/data
+    depends_on:
+      - uzcorpora
+
+  celery_worker_uzcorpora:
+    container_name: celery_worker_uzcorpora
+    restart: always
+    build:
+      context: .
+#    command: celery -A config worker -l info
+    command: su celeryuser -c "celery -A config worker -l info"
+    depends_on:
+      - uzcorpora
+      - redis_uzcorpora
+      - db_uzcorpora
+    volumes:
+      - .:/uzcorpora
+
+  celery_beat_uzcorpora:
+    container_name: celery_beat_uzcorpora
+    restart: always
+    build:
+      context: .
+#    command: celery -A config beat -l info
+    command: su celeryuser -c "celery -A config beat -l info"
+    depends_on:
+      - uzcorpora
+      - redis_uzcorpora
+      - db_uzcorpora
+      - celery_worker_uzcorpora
+    volumes:
+      - .:/uzcorpora
+
+volumes:
+  postgres_data_uzcorpora:
+  redis_data_uzcorpora:
