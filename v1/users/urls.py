@@ -6,6 +6,6 @@ from v1.users.views import AdminAndManagerLoginApi
 
 
 urlpatterns = [
-    path('admin-manager/login/', AdminAndManagerLoginApi.as_view()),
+    path('login/admin-manager/', AdminAndManagerLoginApi.as_view()),
     path('refresh/', TokenRefreshView.as_view()),
 ]

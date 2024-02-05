@@ -57,6 +57,8 @@ INSTALLED_APPS += [
 # Project apps
 INSTALLED_APPS += [
     'v1.users',
+    'v1.corpus',
+    'v1.core'
 ]
 
 MIDDLEWARE = [
@@ -155,7 +157,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # User Model
 AUTH_USER_MODEL = 'users.User'
 
-
 # CORS CONF
 CORS_ALLOWED_ORIGINS = os.getenv("CORS_ALLOWED_ORIGINS").split(",")
 CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS').split(",")
@@ -224,7 +225,7 @@ SIMPLE_JWT = {
 
     "SLIDING_TOKEN_REFRESH_EXP_CLAIM": "refresh_exp",
     "SLIDING_TOKEN_LIFETIME": timedelta(days=1),
-    "SLIDING_TOKEN_REFRESH_LIFETIME": timedelta(days=1)
+    "SLIDING_TOKEN_REFRESH_LIFETIME": timedelta(days=1),
 }
 
 

@@ -40,8 +40,7 @@ services:
     restart: always
     build:
       context: .
-#    command: celery -A config worker -l info
-    command: su celeryuser -c "celery -A config worker -l info"
+    command: celery -A config worker -l info
     depends_on:
       - uzcorpora
       - redis_uzcorpora
@@ -54,8 +53,7 @@ services:
     restart: always
     build:
       context: .
-#    command: celery -A config beat -l info
-    command: su celeryuser -c "celery -A config beat -l info"
+    command: celery -A config beat -l info
     depends_on:
       - uzcorpora
       - redis_uzcorpora
@@ -67,3 +65,4 @@ services:
 volumes:
   postgres_data_uzcorpora:
   redis_data_uzcorpora:
+

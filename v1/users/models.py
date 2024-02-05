@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, AbstractUser
+from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from v1.commons.enums import UserRole
 from v1.users.managers import (
     AdminManager, CustomManager, MManager, CustomerManager

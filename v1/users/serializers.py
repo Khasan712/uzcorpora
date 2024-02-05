@@ -1,6 +1,5 @@
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework import serializers
-from v1.users.models import User, Admin, Manager
 
 
 class AdminAndManagerObtainPairSerializer(TokenObtainPairSerializer):
