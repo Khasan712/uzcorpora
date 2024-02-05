@@ -1,5 +1,6 @@
 amqp==5.2.0
 asgiref==3.7.2
+async-timeout==4.0.3
 billiard==4.2.0
 celery==5.3.6
 certifi==2023.11.17
@@ -17,6 +18,8 @@ django-rest-swagger==2.2.0
 djangorestframework==3.14.0
 djangorestframework-simplejwt==5.3.1
 drf-yasg==1.21.7
+exceptiongroup==1.2.0
+gunicorn==21.2.0
 idna==3.6
 inflection==0.5.1
 iniconfig==2.0.0
@@ -41,6 +44,8 @@ requests==2.31.0
 simplejson==3.19.2
 six==1.16.0
 sqlparse==0.4.4
+tomli==2.0.1
+typing_extensions==4.9.0
 tzdata==2023.4
 uritemplate==4.1.1
 urllib3==2.2.0
