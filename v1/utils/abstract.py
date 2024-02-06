@@ -18,7 +18,7 @@ class CoreBaseAbstract(CustomBaseAbstract):
     word_qty = models.PositiveIntegerField(_("So'z miqdori"), default=0)
     sentence_qty = models.PositiveIntegerField(_("Gap miqdori"), default=0)
     text = models.TextField(_("Matn"))
-    file = models.FileField(upload_to='core/')
+    file = models.FileField(upload_to='core/', blank=True, null=True)
 
     class Meta:
         abstract = True

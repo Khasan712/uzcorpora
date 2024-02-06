@@ -1,6 +1,6 @@
 from django.db import models
 from v1.utils.abstract import CustomBaseAbstract, CoreBaseAbstract
-from v1.commons.enums import AuthorType, Style
+from v1.commons.enums import AuthorType
 from django.utils.translation import gettext_lazy as _
 
 
@@ -34,6 +34,13 @@ class LiteraryGenre(CustomBaseAbstract):
         return f'{self.id} - {self.name}'
 
 
+class Style(CustomBaseAbstract):
+    name = models.CharField(_("Uslub"), max_length=255)
+
+    def __str__(self):
+        return f'{self.id} - {self.name}'
+
+
 class Newspaper(CoreBaseAbstract):
     number = models.CharField(_("Nashr raqami"), max_length=100, blank=True, null=True)
     net_address = models.CharField(_("NET-manzili"), max_length=500)
@@ -44,7 +51,7 @@ class Newspaper(CoreBaseAbstract):
     )
     wrote_at = models.DateTimeField(_("Yozilgan vaqti"), blank=True, null=True)
     published_at = models.DateTimeField(_("Nashr yili"))
-    style = models.CharField(_("Uslubi"), choices=Style.choices(), max_length=12)
+    style = models.ForeignKey(Style, on_delete=models.SET_NULL, null=True, verbose_name=_("Uslubi"))
     auditorium_age = models.CharField(_("Auditoriya yoshi"), max_length=10, blank=True, null=True)
     level_of_auditorium = models.ManyToManyField(
         CapacityLevelOfTheAuditorium, blank=True, verbose_name=_("Auditoriya salohiyat darajasi")
@@ -75,7 +82,7 @@ class Journal(CoreBaseAbstract):
     text_number = models.CharField(_("Adadi"), max_length=255, blank=True, null=True)
     issn = models.CharField(_("ISSN"), max_length=255, blank=True, null=True)
     text_type = models.ForeignKey(TextType, on_delete=models.SET_NULL, null=True, blank=True, verbose_name=_("Matn tipi"))
-    style = models.CharField(_("Uslubi"), choices=Style.choices(), max_length=12)
+    style = models.ForeignKey(Style, on_delete=models.SET_NULL, null=True, verbose_name=_("Uslubi"))
     auditorium_age = models.CharField(_("Auditoriya yoshi"), max_length=10, blank=True, null=True)
     level_of_auditorium = models.ManyToManyField(
         CapacityLevelOfTheAuditorium, blank=True, verbose_name=_("Auditoriya salohiyat darajasi")
@@ -94,7 +101,7 @@ class InternetInfo(CoreBaseAbstract):
         FieldOfApplication, on_delete=models.SET_NULL, blank=True, null=True, verbose_name=_("Qo'llanish sohasi")
     )
     text_type = models.ForeignKey(TextType, on_delete=models.SET_NULL, null=True, blank=True, verbose_name=_("Matn tipi"))
-    style = models.CharField(_("Uslubi"), choices=Style.choices(), max_length=12)
+    style = models.ForeignKey(Style, on_delete=models.SET_NULL, null=True, verbose_name=_("Uslubi"))
     auditorium_age = models.CharField(_("Auditoriya yoshi"), max_length=10, blank=True, null=True)
     level_of_auditorium = models.ManyToManyField(
         CapacityLevelOfTheAuditorium, blank=True, verbose_name=_("Auditoriya salohiyat darajasi")
@@ -113,7 +120,7 @@ class Book(CoreBaseAbstract):
     time_and_place_of_the_event = models.CharField(
         _("Voqea vaqti va joyi"), max_length=500, blank=True, null=True
     )
-    style = models.CharField(_("Uslubi"), choices=Style.choices(), max_length=12)
+    style = models.ForeignKey(Style, on_delete=models.SET_NULL, null=True, verbose_name=_("Uslubi"))
     auditorium_age = models.CharField(_("Auditoriya yoshi"), max_length=10, blank=True, null=True)
     level_of_auditorium = models.ManyToManyField(
         CapacityLevelOfTheAuditorium, blank=True, verbose_name=_("Auditoriya salohiyat darajasi")
@@ -132,7 +139,7 @@ class Article(CoreBaseAbstract):
     issn = models.CharField(_("ISSN"), max_length=255, blank=True, null=True)
     net_address = models.CharField(_("NET-manzili"), max_length=500)
     text_type = models.ForeignKey(TextType, on_delete=models.SET_NULL, null=True, blank=True, verbose_name=_("Matn tipi"))
-    style = models.CharField(_("Uslubi"), choices=Style.choices(), max_length=12)
+    style = models.ForeignKey(Style, on_delete=models.SET_NULL, null=True, verbose_name=_("Uslubi"))
     auditorium_age = models.CharField(_("Auditoriya yoshi"), max_length=10, blank=True, null=True)
     field_of_application = models.ForeignKey(
         FieldOfApplication, on_delete=models.SET_NULL, blank=True, null=True, verbose_name=_("Qo'llanish sohasi")

@@ -1,8 +1,13 @@
 from django.contrib import admin
 from v1.core.models import (
     CapacityLevelOfTheAuditorium, TextType, FieldOfApplication, LiteraryGenre, Newspaper, OfficialText,
-    Journal, InternetInfo, Book, Article, OtherMetaData
+    Journal, InternetInfo, Book, Article, OtherMetaData, Style
 )
+
+
+@admin.register(Style)
+class StyleAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name', 'created_at', 'updated_at')
 
 
 @admin.register(CapacityLevelOfTheAuditorium)
