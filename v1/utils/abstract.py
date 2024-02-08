@@ -1,6 +1,8 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+from v1.commons.enums import SourceType
+
 
 class CustomBaseAbstract(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
@@ -19,6 +21,7 @@ class CoreBaseAbstract(CustomBaseAbstract):
     sentence_qty = models.PositiveIntegerField(_("Gap miqdori"), default=0)
     text = models.TextField(_("Matn"))
     file = models.FileField(upload_to='core/', blank=True, null=True)
+    source_type = models.CharField(_("Manba turi"), choices=SourceType.choices(), max_length=17)
 
     class Meta:
         abstract = True

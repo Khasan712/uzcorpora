@@ -1,4 +1,6 @@
 from rest_framework.generics import ListAPIView, CreateAPIView
+
+from v1.commons.enums import SourceType
 from v1.core.models import (CapacityLevelOfTheAuditorium, )
 from v1.core.serializers import CapacityLevelOfTheAuditoriumGetSerializer, NewspaperMetaDataPostSerializer
 from v1.utils.permissions import IsManager, IsAdmin
@@ -21,7 +23,7 @@ class TextMetaDataPostApi(CreateAPIView):
     permission_classes = [IsAdmin | IsManager]
 
     def post(self, request, *args, **kwargs):
-        source_type = request.query_params.get('source_type')
+        source_type = request.data.get('source_type')
         if not source_type or source_type not in ('newspaper',):
             return Response({
                 "status": True,
@@ -30,7 +32,8 @@ class TextMetaDataPostApi(CreateAPIView):
         return super().post(request, *args, **kwargs)
 
     def get_serializer_class(self):
-        if self.request.query_params.get('source_type') == 'newspaper':
+        source_type = self.request.data.get('source_type')
+        if source_type == 'newspaper':
             return NewspaperMetaDataPostSerializer
 
     def perform_create(self, serializer):

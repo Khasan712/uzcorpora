@@ -1,7 +1,7 @@
 from django.contrib import admin
 from v1.core.models import (
     CapacityLevelOfTheAuditorium, TextType, FieldOfApplication, LiteraryGenre, Newspaper, OfficialText,
-    Journal, InternetInfo, Book, Article, OtherMetaData, Style
+    Journal, InternetInfo, Book, Article, Other, Style
 )
 
 
@@ -66,8 +66,8 @@ class ArticleAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'corpus', 'word_qty', 'sentence_qty', 'created_at', 'updated_at')
 
 
-@admin.register(OtherMetaData)
-class OtherMetaDataAdmin(admin.ModelAdmin):
+@admin.register(Other)
+class OtherAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'corpus', 'word_qty', 'sentence_qty', 'created_at', 'updated_at')
 
 

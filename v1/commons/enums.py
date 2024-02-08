@@ -1,10 +1,14 @@
 from enum import Enum
 
 
-class UserRole(Enum):
-    admin = 'admin'
-    manager = 'manager'
-    customer = 'customer'
+class SourceType(Enum):
+    newspaper = 'newspaper'
+    official_text = 'official_text'
+    journal = 'journal'
+    internet_info = "internet_info"
+    book = 'book'
+    article = 'article'
+    other = 'other'
 
     @classmethod
     def choices(cls):
@@ -14,18 +18,10 @@ class UserRole(Enum):
         )
 
 
-class Style(Enum):
-    """
-    Uslublar
-    """
-
-    artistic = 'badiiy'
-    official = 'rasmiy'
-    scientific = 'ilmiy'
-    publicist = 'publitsistik'
-    conversation = "so'zlashuv"
-    religious = 'diniy'
-    information = 'axborot'
+class UserRole(Enum):
+    admin = 'admin'
+    manager = 'manager'
+    customer = 'customer'
 
     @classmethod
     def choices(cls):
