@@ -30,7 +30,7 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 DEBUG = bool(os.getenv('DEBUG') == 'True')
 
 ALLOWED_HOSTS = ["*", ] if DEBUG else os.getenv('ALLOWED_HOSTS').split(',')
-
+print(ALLOWED_HOSTS)
 # Application definition
 
 INSTALLED_APPS = [
@@ -159,7 +159,9 @@ AUTH_USER_MODEL = 'users.User'
 
 # CORS CONF
 CORS_ALLOWED_ORIGINS = os.getenv("CORS_ALLOWED_ORIGINS").split(",")
+print(CORS_ALLOWED_ORIGINS)
 CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS').split(",")
+print(CSRF_TRUSTED_ORIGINS)
 CORS_ALLOW_METHODS = (
     "DELETE",
     "GET",
