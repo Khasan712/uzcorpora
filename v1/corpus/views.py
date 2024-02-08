@@ -4,7 +4,7 @@ from v1.corpus.serializers import CorpusGetSerializer
 
 
 class CorpusGetApi(ListAPIView):
-    queryset = Corpus.objects.select_related('parent')
+    queryset = Corpus.objects.select_related('parent').order_by('-id')
     serializer_class = CorpusGetSerializer
 
     def get_queryset(self):

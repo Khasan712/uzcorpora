@@ -1,9 +1,15 @@
 from rest_framework import serializers
 from v1.core.models import (
-    CapacityLevelOfTheAuditorium, Text
+    CapacityLevelOfTheAuditorium, Text, Style
 )
 
 from v1.utils.raise_errors import raise_file_format_error, raise_file_and_text_error
+
+
+class StyleGetSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Style
+        fields = ('id', 'name')
 
 
 class CapacityLevelOfTheAuditoriumGetSerializer(serializers.ModelSerializer):

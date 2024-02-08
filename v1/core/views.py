@@ -1,14 +1,19 @@
 from rest_framework.generics import ListAPIView, CreateAPIView
 
-from v1.commons.enums import SourceType
-from v1.core.models import (CapacityLevelOfTheAuditorium, )
-from v1.core.serializers import CapacityLevelOfTheAuditoriumGetSerializer, NewspaperMetaDataPostSerializer
+from v1.core.models import (CapacityLevelOfTheAuditorium, Style)
+from v1.core.serializers import CapacityLevelOfTheAuditoriumGetSerializer, NewspaperMetaDataPostSerializer, \
+    StyleGetSerializer
 from v1.utils.permissions import IsManager, IsAdmin
 from rest_framework.response import Response
 
 
+class StyleGetApi(ListAPIView):
+    queryset = Style.objects.order_by('-id')
+    serializer_class = StyleGetSerializer
+
+
 class LevelOfAuditoriumGetApi(ListAPIView):
-    queryset = CapacityLevelOfTheAuditorium.objects.select_related('parent')
+    queryset = CapacityLevelOfTheAuditorium.objects.select_related('parent').order_by('-id')
     serializer_class = CapacityLevelOfTheAuditoriumGetSerializer
 
     def get_queryset(self):
