@@ -76,9 +76,7 @@ class TextPostBaseSerializer(serializers.ModelSerializer):
         level_of_auditorium = get_or_raise_level_of_auditorium(data.get('level_of_auditorium'))
 
         if level_of_auditorium:
-            print('111')
             data.pop('level_of_auditorium')
-            print(data, '2222')
             self.context['level_of_auditorium'] = level_of_auditorium
 
         return data
