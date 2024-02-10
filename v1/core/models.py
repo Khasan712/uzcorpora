@@ -67,6 +67,7 @@ class Text(CoreBaseAbstract):
     document_owner = models.CharField(
         _("Hujjat chiqargan tashkilot (shaxs)"), max_length=255, blank=True, null=True
     )
+    document_namely = models.CharField(_("Hujjat nomlanishi"), max_length=255, blank=True, null=True)
 
     # jurnal
     publisher = models.CharField(_("Nashriyoti"), max_length=300, blank=True, null=True)
@@ -82,11 +83,12 @@ class Text(CoreBaseAbstract):
 
     # book
     authors = models.TextField(_("Mualliflar ismi, jinsi, yillari"), blank=True, null=True)
-    literary_genre = models.ForeignKey(LiteraryGenre, on_delete=models.SET_NULL, null=True,
-                                       verbose_name=_("Adabi turi"))
+    literary_genre = models.ForeignKey(LiteraryGenre, on_delete=models.SET_NULL, null=True, blank=True,
+                                       verbose_name=_("Adabiy turi"))
     time_and_place_of_the_event = models.CharField(
         _("Voqea vaqti va joyi"), max_length=500, blank=True, null=True
     )
+    isbn = models.CharField(_("ISBN"), max_length=255, blank=True, null=True)
 
     # article
     article_created_at = models.DateTimeField(_("Chop etilgan vaqti"), blank=True, null=True)
@@ -171,6 +173,8 @@ class Other(Text):
 #         _("Hujjat chiqargan tashkilot (shaxs)"), max_length=255, blank=True, null=True
 #     )
 #     published_at = models.DateTimeField(_("E'lon qilingan vaqt"))
+#     document_namely = models.CharField(_("Hujjat nomlanishi"), max_length=255, blank=True, null=True)
+#
 #
 #
 # class Journal(CoreBaseAbstract):
@@ -201,7 +205,7 @@ class Other(Text):
 #         _("Muallif jinsi"), choices=AuthorType.choices(), max_length=5, blank=True, null=True
 #     )
 #     wrote_at = models.DateTimeField(_("Yozilgan vaqti"), blank=True, null=True)
-#     published_at = models.DateTimeField(_("Nashr yili"))
+#     published_at = models.DateTimeField(_("Internetga joylangan vaqti"))
 #     field_of_application = models.ForeignKey(
 #         FieldOfApplication, on_delete=models.SET_NULL, blank=True, null=True, verbose_name=_("Qo'llanish sohasi")
 #     )
@@ -237,7 +241,7 @@ class Other(Text):
 #
 # class Article(CoreBaseAbstract):
 #     authors = models.TextField(_("Mualliflar ismi, jinsi, yillari"))
-#     articl_created_at = models.DateTimeField(_("Chop etilgan vaqti"))
+#     article_created_at = models.DateTimeField(_("Chop etilgan vaqti"))
 #     pages_qty = models.PositiveIntegerField(_("Sahifalari"))
 #     name_of_article = models.CharField(_("Manbaning (jurnal, kitob) nomi"), max_length=255)
 #     published_at = models.DateTimeField(_("Nashr yili"))
