@@ -6,6 +6,7 @@ from v1.core.models import (
 from v1.utils.raise_errors import (
     raise_file_format_error, raise_file_and_text_error, get_or_raise_level_of_auditorium
 )
+from v1.corpus.serializers import CorpusGetSerializer
 
 
 class LiteraryGenreGetSerializer(serializers.ModelSerializer):
@@ -82,6 +83,22 @@ class TextPostBaseSerializer(serializers.ModelSerializer):
         return data
 
     def to_representation(self, instance):
+        if self.context['request'].method == 'GET' and self.context.get('kwargs').get('pk'):
+            res = super().to_representation(instance)
+            res['corpus'] = CorpusGetSerializer(instance.corpus).data
+            if res.get('style'):
+                res['style'] = StyleGetSerializer(instance.style).data
+            if res.get('text_type'):
+                res['text_type'] = TextTypeGetSerializer(instance.text_type).data
+            if res.get('field_of_application'):
+                res['field_of_application'] = FieldOfApplicationGetSerializer(instance.field_of_application).data
+            if res.get('literary_genre'):
+                res['literary_genre'] = LiteraryGenreGetSerializer(instance.literary_genre).data
+            if res.get('level_of_auditorium'):
+                res['level_of_auditorium'] = CapacityLevelOfTheAuditoriumGetSerializer(
+                    instance.level_of_auditorium.all(), many=True
+                ).data
+            return res
         return {"status": True}
 
     def create(self, validated_data):

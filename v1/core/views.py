@@ -1,4 +1,6 @@
-from rest_framework.generics import ListAPIView, ListCreateAPIView
+from rest_framework.generics import ListAPIView
+from rest_framework.viewsets import GenericViewSet
+from rest_framework.mixins import CreateModelMixin, ListModelMixin, RetrieveModelMixin, UpdateModelMixin
 from v1.core.models import (
     CapacityLevelOfTheAuditorium, Style, Text, TextType, FieldOfApplication, LiteraryGenre
 )
@@ -9,7 +11,7 @@ from v1.core.serializers import (
     LiteraryGenreGetSerializer, ArticleMetaDataPostSerializer
 )
 from v1.utils.permissions import IsManager, IsAdmin
-from rest_framework.response import Response
+from rest_framework.validators import ValidationError
 
 
 class LiteraryGenreGetApi(ListAPIView):
@@ -51,7 +53,13 @@ class LevelOfAuditoriumGetApi(ListAPIView):
         return queryset.filter(parent__isnull=True)
 
 
-class TextMetaDataPostApi(ListCreateAPIView):
+class TextMetaDataApi(
+    CreateModelMixin,
+    ListModelMixin,
+    RetrieveModelMixin,
+    UpdateModelMixin,
+    GenericViewSet
+):
     permission_classes = [IsAdmin | IsManager]
     queryset = Text.objects.select_related(
         'style', 'text_type', 'field_of_application', 'literary_genre').prefetch_related(
@@ -60,20 +68,18 @@ class TextMetaDataPostApi(ListCreateAPIView):
     def get_queryset(self):
         return super().get_queryset().filter(creator_id=self.request.user.id)
 
-    def post(self, request, *args, **kwargs):
-        source_type = request.data.get('source_type')
-        if not source_type or source_type not in (
-                'newspaper', 'official_text', 'journal', 'internet_info', 'book', 'article', 'other'
-        ):
-            return Response({
-                "status": True,
-                "error": "Source type not exists or not found!!!"
-            }, status=400)
-        return super().post(request, *args, **kwargs)
-
-    def get_serializer_class(self):
-        source_type = self.request.data.get('source_type')
-        if self.request.method == 'POST':
+    def validate_get_serializer(self):
+        request_method = self.request.method
+        if request_method == 'POST' or request_method == 'PATCH' or (request_method == 'GET' and self.kwargs.get('pk')):
+            source_type = self.request.query_params.get('source_type')
+            if not source_type or source_type not in (
+                    'newspaper', 'official_text', 'journal', 'internet_info', 'book', 'article', 'other'
+            ):
+                raise ValidationError({
+                    "status": False,
+                    "error": "Ukajon q'oy chiranma!!! 😎"
+                    # "error": "Source type not given or given type not exists!!!"
+                })
             if source_type == 'newspaper':
                 return NewspaperMetaDataPostSerializer
             elif source_type == 'official_text':
@@ -86,8 +92,16 @@ class TextMetaDataPostApi(ListCreateAPIView):
                 return BookMetaDataPostSerializer
             else:
                 return ArticleMetaDataPostSerializer
-        elif self.request.method == 'GET':
+        elif request_method == 'GET':
             return TextGetSerializer
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['kwargs'] = self.kwargs
+        return context
+
+    def get_serializer_class(self):
+        return self.validate_get_serializer()
 
     def perform_create(self, serializer):
         serializer.save(creator_id=self.request.user.id)

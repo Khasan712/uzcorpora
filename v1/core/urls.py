@@ -1,8 +1,12 @@
 from django.urls import path
 from v1.core.views import (
-    LevelOfAuditoriumGetApi, TextMetaDataPostApi, StyleGetApi, TextTypeGetAPi, FieldOfApplicationGetAPi,
+    LevelOfAuditoriumGetApi, TextMetaDataApi, StyleGetApi, TextTypeGetAPi, FieldOfApplicationGetAPi,
     LiteraryGenreGetApi
 )
+from rest_framework.routers import DefaultRouter
+
+router = DefaultRouter()
+router.register('text', TextMetaDataApi)
 
 
 urlpatterns = [
@@ -11,5 +15,4 @@ urlpatterns = [
     path('text-type/', TextTypeGetAPi.as_view()),
     path('style/', StyleGetApi.as_view()),
     path('level-of-auditorium/', LevelOfAuditoriumGetApi.as_view()),
-    path('text/', TextMetaDataPostApi.as_view()),
-]
+]+router.urls
