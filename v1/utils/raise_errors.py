@@ -1,5 +1,4 @@
 from rest_framework.validators import ValidationError
-
 from v1.core.models import CapacityLevelOfTheAuditorium
 
 
@@ -16,6 +15,19 @@ def raise_file_and_text_error(file=None, text=None):
         raise ValidationError({
             "status": False,
             "error": "File or text error"
+        })
+
+
+def raise_file_and_text_error_en(corpus, file_en=None, text_en=None):
+    if file_en and text_en:
+        raise ValidationError({
+            "status": False,
+            "error": "You can not upload 'file en' and 'text en' in the same time!"
+        })
+    elif corpus.id == 4 and (not text_en and not file_en):
+        raise ValidationError({
+            "status": False,
+            "error": "File en or text en error"
         })
 
 

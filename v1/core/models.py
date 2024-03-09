@@ -1,11 +1,109 @@
 from django.db import models
 from v1.utils.abstract import CustomBaseAbstract, CoreBaseAbstract
-from v1.commons.enums import AuthorType
+from v1.commons.enums import AuthorType, WordPhrase
 from django.utils.translation import gettext_lazy as _
 from v1.utils.managers import (
     JournalManager, InternetInfoManager, BookManager, ArticleManager, NewspaperManager, OfficialTextManager,
     OtherManager
 )
+from v1.utils.validations import validate_file_format_excel
+
+
+class Phrase(CustomBaseAbstract):
+    """
+    uz,
+    So'z turkumlari uchun model
+
+    en,
+    Model for phrases
+    """
+    name = models.CharField(max_length=255)
+    parent = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True)
+
+    def __str__(self):
+        parent = self.parent.id if self.parent else None
+        return f'{self.id} - {self.name} - Parent => : {parent}'
+
+
+class Word(CustomBaseAbstract):
+    """
+    uz,
+    So'z bazasi modeli
+
+    en,
+    Word db model
+    """
+    phrase = models.ForeignKey(Phrase, on_delete=models.SET_NULL, null=True)
+    word = models.CharField(max_length=255)
+    lemma = models.CharField(max_length=255)
+    uuid = models.CharField(max_length=255, blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.id} - {self.word} - {self.phrase.id}"
+
+
+class WordGrammar(CustomBaseAbstract):
+    """
+    uz,
+    So'z grammatikasi - bittaga ko'p
+
+    en,
+    Word grammatics - one 2 many
+    """
+    word = models.ForeignKey(Word, on_delete=models.SET_NULL, null=True, related_name='word_grammars')
+    phrase = models.ForeignKey(Phrase, on_delete=models.SET_NULL, null=True)
+
+    class Meta:
+        unique_together = ('word', 'phrase')
+
+    def __str__(self):
+        try:
+            return f"{self.id} - {self.word.word} - {self.phrase.id}"
+        except:
+            return super().__str__()
+        
+
+class WordSemanticExpression(CustomBaseAbstract):
+    """
+    uz,
+    So'zning simmantik ifodasi - bittaga ko'p
+
+    en,
+    Word semantic expression - one 2 many
+    """
+    word = models.ForeignKey(Word, on_delete=models.SET_NULL, null=True, related_name='word_semantic_expressions')
+    phrase = models.ForeignKey(Phrase, on_delete=models.SET_NULL, null=True)
+
+    class Meta:
+        unique_together = ('word', 'phrase')
+
+    def __str__(self):
+        try:
+            return f"{self.id} - {self.word.word} - {self.phrase.id}"
+        except:
+            return super().__str__()
+
+
+class CreateWordFromExcel(CustomBaseAbstract):
+    """
+    uz,
+    So'zlarni excel fayldan o'qib yaratish modeli
+
+    en,
+    Creating words from excel model
+    """
+    phrase = models.ForeignKey(Phrase, on_delete=models.SET_NULL, null=True)
+    word_phrase = models.CharField(max_length=50, choices=WordPhrase.choices())
+    file = models.FileField(upload_to='create_word_from_file/', validators=[validate_file_format_excel])
+    uuid = models.CharField(max_length=255, blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.id} - {self.word_phrase}"
+
+    def get_total_words(self):
+        if self.uuid:
+            return Word.objects.filter(uuid=self.uuid).count()
+        return 0
 
 
 class CapacityLevelOfTheAuditorium(CustomBaseAbstract):
@@ -147,115 +245,3 @@ class Other(Text):
 
     class Meta:
         proxy = True
-
-# class Newspaper(CoreBaseAbstract):
-#     number = models.CharField(_("Nashr raqami"), max_length=100, blank=True, null=True)
-#     net_address = models.CharField(_("NET-manzili"), max_length=500)
-#     theme = models.CharField(_("Matn mavzusi"), max_length=255)
-#     author = models.CharField(_("Muallif"), max_length=255)
-#     author_type = models.CharField(
-#         _("Muallif jinsi"), choices=AuthorType.choices(), max_length=5, blank=True, null=True
-#     )
-#     wrote_at = models.DateTimeField(_("Yozilgan vaqti"), blank=True, null=True)
-#     published_at = models.DateTimeField(_("Nashr yili"))
-#     style = models.ForeignKey(Style, on_delete=models.SET_NULL, null=True, verbose_name=_("Uslubi"))
-#     auditorium_age = models.CharField(_("Auditoriya yoshi"), max_length=10, blank=True, null=True)
-#     level_of_auditorium = models.ManyToManyField(
-#         CapacityLevelOfTheAuditorium, blank=True, verbose_name=_("Auditoriya salohiyat darajasi")
-#     )
-#
-#
-# class OfficialText(CoreBaseAbstract):
-#     net_address = models.CharField(_("NET-manzili"), max_length=500)
-#     number = models.CharField(_("Hujjat raqami"), max_length=255, blank=True, null=True)
-#     document_type = models.CharField(_("Hujjat turi"), max_length=255)
-#     document_owner = models.CharField(
-#         _("Hujjat chiqargan tashkilot (shaxs)"), max_length=255, blank=True, null=True
-#     )
-#     published_at = models.DateTimeField(_("E'lon qilingan vaqt"))
-#     document_namely = models.CharField(_("Hujjat nomlanishi"), max_length=255, blank=True, null=True)
-#
-#
-#
-# class Journal(CoreBaseAbstract):
-#     number = models.CharField(_("Nashr raqami"), max_length=255, blank=True, null=True)
-#     net_address = models.CharField(_("NET-manzili"), max_length=500)
-#     theme = models.CharField(_("Maqola mavzusi"), max_length=255)
-#     author = models.CharField(_("Muallif"), max_length=255)
-#     author_type = models.CharField(
-#         _("Muallif jinsi"), choices=AuthorType.choices(), max_length=5, blank=True, null=True
-#     )
-#     wrote_at = models.DateTimeField(_("Yozilgan vaqti"), blank=True, null=True)
-#     published_at = models.DateTimeField(_("Nashr yili"))
-#     publisher = models.CharField(_("Nashriyoti"), max_length=300, blank=True, null=True)
-#     text_number = models.CharField(_("Adadi"), max_length=255, blank=True, null=True)
-#     issn = models.CharField(_("ISSN"), max_length=255, blank=True, null=True)
-#     text_type = models.ForeignKey(TextType, on_delete=models.SET_NULL, null=True, blank=True, verbose_name=_("Matn tipi"))
-#     style = models.ForeignKey(Style, on_delete=models.SET_NULL, null=True, verbose_name=_("Uslubi"))
-#     auditorium_age = models.CharField(_("Auditoriya yoshi"), max_length=10, blank=True, null=True)
-#     level_of_auditorium = models.ManyToManyField(
-#         CapacityLevelOfTheAuditorium, blank=True, verbose_name=_("Auditoriya salohiyat darajasi")
-#     )
-#
-#
-# class InternetInfo(CoreBaseAbstract):
-#     net_address = models.CharField(_("NET-manzili"), max_length=500)
-#     author = models.CharField(_("Muallif"), max_length=255)
-#     author_type = models.CharField(
-#         _("Muallif jinsi"), choices=AuthorType.choices(), max_length=5, blank=True, null=True
-#     )
-#     wrote_at = models.DateTimeField(_("Yozilgan vaqti"), blank=True, null=True)
-#     published_at = models.DateTimeField(_("Internetga joylangan vaqti"))
-#     field_of_application = models.ForeignKey(
-#         FieldOfApplication, on_delete=models.SET_NULL, blank=True, null=True, verbose_name=_("Qo'llanish sohasi")
-#     )
-#     text_type = models.ForeignKey(TextType, on_delete=models.SET_NULL, null=True, blank=True, verbose_name=_("Matn tipi"))
-#     style = models.ForeignKey(Style, on_delete=models.SET_NULL, null=True, verbose_name=_("Uslubi"))
-#     auditorium_age = models.CharField(_("Auditoriya yoshi"), max_length=10, blank=True, null=True)
-#     level_of_auditorium = models.ManyToManyField(
-#         CapacityLevelOfTheAuditorium, blank=True, verbose_name=_("Auditoriya salohiyat darajasi")
-#     )
-#
-#
-# class Book(CoreBaseAbstract):
-#     authors = models.TextField(_("Mualliflar ismi, jinsi, yillari"))
-#     wrote_at = models.DateTimeField(_("Yozilgan vaqti"), blank=True, null=True)
-#     published_at = models.DateTimeField(_("Nashr yili"))
-#     publisher = models.CharField(_("Nashriyoti"), max_length=300, blank=True, null=True)
-#     text_number = models.CharField(_("Adadi"), max_length=255, blank=True, null=True)
-#     isbn = models.CharField(_("ISBN"), max_length=255, blank=True, null=True)
-#     text_type = models.ForeignKey(TextType, on_delete=models.SET_NULL, null=True, blank=True, verbose_name=_("Matn tipi"))
-#     literary_genre = models.ForeignKey(LiteraryGenre, on_delete=models.SET_NULL, null=True, verbose_name=_("Adabi turi"))
-#     time_and_place_of_the_event = models.CharField(
-#         _("Voqea vaqti va joyi"), max_length=500, blank=True, null=True
-#     )
-#     style = models.ForeignKey(Style, on_delete=models.SET_NULL, null=True, verbose_name=_("Uslubi"))
-#     auditorium_age = models.CharField(_("Auditoriya yoshi"), max_length=10, blank=True, null=True)
-#     level_of_auditorium = models.ManyToManyField(
-#         CapacityLevelOfTheAuditorium, blank=True, verbose_name=_("Auditoriya salohiyat darajasi")
-#     )
-#     field_of_application = models.ForeignKey(
-#         FieldOfApplication, on_delete=models.SET_NULL, blank=True, null=True, verbose_name=_("Qo'llanish sohasi")
-#     )
-#
-#
-# class Article(CoreBaseAbstract):
-#     authors = models.TextField(_("Mualliflar ismi, jinsi, yillari"))
-#     article_created_at = models.DateTimeField(_("Chop etilgan vaqti"))
-#     pages_qty = models.PositiveIntegerField(_("Sahifalari"))
-#     name_of_article = models.CharField(_("Manbaning (jurnal, kitob) nomi"), max_length=255)
-#     published_at = models.DateTimeField(_("Nashr yili"))
-#     issn = models.CharField(_("ISSN"), max_length=255, blank=True, null=True)
-#     net_address = models.CharField(_("NET-manzili"), max_length=500)
-#     text_type = models.ForeignKey(TextType, on_delete=models.SET_NULL, null=True, blank=True, verbose_name=_("Matn tipi"))
-#     style = models.ForeignKey(Style, on_delete=models.SET_NULL, null=True, verbose_name=_("Uslubi"))
-#     auditorium_age = models.CharField(_("Auditoriya yoshi"), max_length=10, blank=True, null=True)
-#     field_of_application = models.ForeignKey(
-#         FieldOfApplication, on_delete=models.SET_NULL, blank=True, null=True, verbose_name=_("Qo'llanish sohasi")
-#     )
-#     level_of_auditorium = models.ManyToManyField(
-#         CapacityLevelOfTheAuditorium, blank=True, verbose_name=_("Auditoriya salohiyat darajasi")
-#     )
-#
-#
-# class OtherMetaData(Book): ...

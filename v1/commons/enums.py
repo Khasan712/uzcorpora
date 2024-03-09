@@ -1,6 +1,18 @@
 from enum import Enum
 
 
+class WordPhrase(Enum):
+    grammar = 'grammar'
+    semantic_expression = 'semantic_expression'
+
+    @classmethod
+    def choices(cls):
+        return (
+            (key.value, key.name)
+            for key in cls
+        )
+
+
 class SourceType(Enum):
     newspaper = 'newspaper'
     official_text = 'official_text'

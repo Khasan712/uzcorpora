@@ -19,9 +19,15 @@ class CoreBaseAbstract(CustomBaseAbstract):
     corpus = models.ForeignKey('corpus.Corpus', on_delete=models.SET_NULL, verbose_name=_("Korpus turi"), null=True)
     word_qty = models.PositiveIntegerField(_("So'z miqdori"), default=0)
     sentence_qty = models.PositiveIntegerField(_("Gap miqdori"), default=0)
-    text = models.TextField(_("Matn"), blank=True, null=True)
-    file = models.FileField(upload_to='core/', blank=True, null=True)
     source_type = models.CharField(_("Manba turi"), choices=SourceType.choices(), max_length=17)
+    file = models.FileField(upload_to='core/', blank=True, null=True)
+    text = models.TextField(_("Matn"), blank=True, null=True)
+
+    text_en = models.TextField(_("Matn English"), blank=True, null=True)
+    file_en = models.FileField(upload_to='core/', blank=True, null=True)
+
+    word_qty_en = models.PositiveIntegerField(_("So'z miqdori English"), default=0)
+    sentence_qty_en = models.PositiveIntegerField(_("Gap miqdori English"), default=0)
 
     class Meta:
         abstract = True

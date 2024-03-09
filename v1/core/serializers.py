@@ -4,7 +4,7 @@ from v1.core.models import (
 )
 
 from v1.utils.raise_errors import (
-    raise_file_format_error, raise_file_and_text_error, get_or_raise_level_of_auditorium
+    raise_file_format_error, raise_file_and_text_error, get_or_raise_level_of_auditorium, raise_file_and_text_error_en
 )
 from v1.corpus.serializers import CorpusGetSerializer
 
@@ -66,6 +66,7 @@ class CapacityLevelOfTheAuditoriumGetSerializer(serializers.ModelSerializer):
 
 class TextPostBaseSerializer(serializers.ModelSerializer):
     file = serializers.FileField(allow_empty_file=False, required=False)
+    file_en = serializers.FileField(allow_empty_file=False, required=False)
 
     def validate(self, attrs):
         data = super().validate(attrs)
@@ -79,6 +80,8 @@ class TextPostBaseSerializer(serializers.ModelSerializer):
         if level_of_auditorium:
             data.pop('level_of_auditorium')
             self.context['level_of_auditorium'] = level_of_auditorium
+
+        raise_file_and_text_error_en(data['corpus'], data.get('file_en'), data.get('text_en'))
 
         return data
 
@@ -116,13 +119,12 @@ class NewspaperMetaDataPostSerializer(TextPostBaseSerializer):
     class Meta:
         model = Text
         fields = (
-            'id', 'name', 'corpus', 'text', 'file', 'source_type',
+            'id', 'name', 'corpus', 'text', 'file', 'text_en', 'file_en', 'source_type',
             'number', 'net_address', 'theme', 'author', 'author_type', 'wrote_at',
             'published_at', 'style', 'auditorium_age', 'level_of_auditorium'
         )
 
         extra_kwargs = {
-            'text': {'required': False},
             'name': {'required': True},
             'theme': {'required': True},
             'author': {'required': True},
@@ -138,12 +140,11 @@ class OfficialTextMetaDataPostSerializer(TextPostBaseSerializer):
     class Meta:
         model = Text
         fields = (
-            'id', 'name', 'corpus', 'text', 'file', 'source_type',
+            'id', 'name', 'corpus', 'text', 'file', 'text_en', 'file_en', 'source_type',
             'number', 'net_address', 'document_type', 'document_owner', 'published_at'
         )
 
         extra_kwargs = {
-            'text': {'required': False},
             'document_type': {'required': True},
             'name': {'required': True},
             'published_at': {'required': True},
@@ -158,13 +159,12 @@ class JournalMetaDataPostSerializer(TextPostBaseSerializer):
     class Meta:
         model = Text
         fields = (
-            'id', 'name', 'corpus', 'text', 'file', 'source_type',
+            'id', 'name', 'corpus', 'text', 'file', 'text_en', 'file_en', 'source_type',
             'number', 'net_address', 'theme', 'author', 'author_type', 'wrote_at', 'published_at', 'publisher',
             'text_number', 'issn', 'text_type', 'style', 'auditorium_age', 'level_of_auditorium'
         )
 
         extra_kwargs = {
-            'text': {'required': False},
             'name': {'required': True},
             'theme': {'required': True},
             'author': {'required': True},
@@ -181,13 +181,12 @@ class InternetInfoMetaDataPostSerializer(TextPostBaseSerializer):
     class Meta:
         model = Text
         fields = (
-            'id', 'name', 'corpus', 'text', 'file', 'source_type',
+            'id', 'name', 'corpus', 'text', 'file', 'text_en', 'file_en', 'source_type',
             'net_address', 'author', 'author_type', 'wrote_at', 'published_at', 'field_of_application',
             'text_type', 'style', 'auditorium_age', 'level_of_auditorium'
         )
 
         extra_kwargs = {
-            'text': {'required': False},
             'name': {'required': True},
             'author': {'required': True},
             'published_at': {'required': True},
@@ -203,14 +202,13 @@ class BookMetaDataPostSerializer(TextPostBaseSerializer):
     class Meta:
         model = Text
         fields = (
-            'id', 'name', 'corpus', 'text', 'file', 'source_type',
+            'id', 'name', 'corpus', 'text', 'file', 'text_en', 'file_en', 'source_type',
             'authors', 'wrote_at', 'published_at', 'publisher', 'text_number', 'isbn', 'text_type',
             'literary_genre', 'time_and_place_of_the_event', 'style', 'auditorium_age', 'level_of_auditorium',
             'field_of_application'
         )
 
         extra_kwargs = {
-            'text': {'required': False},
             'name': {'required': True},
             'authors': {'required': True},
             'published_at': {'required': True},
@@ -226,13 +224,12 @@ class ArticleMetaDataPostSerializer(TextPostBaseSerializer):
     class Meta:
         model = Text
         fields = (
-            'id', 'name', 'corpus', 'text', 'file', 'source_type',
+            'id', 'name', 'corpus', 'text', 'file', 'text_en', 'file_en', 'source_type',
             'authors', 'article_created_at', 'pages_qty', 'name_of_article', 'published_at', 'issn', 'net_address',
             'text_type', 'style', 'auditorium_age', 'level_of_auditorium', 'field_of_application'
         )
 
         extra_kwargs = {
-            'text': {'required': False},
             'name': {'required': True},
             'authors': {'required': True},
             'article_created_at': {'required': True},

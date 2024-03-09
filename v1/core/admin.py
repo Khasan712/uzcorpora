@@ -1,8 +1,39 @@
 from django.contrib import admin
 from v1.core.models import (
     CapacityLevelOfTheAuditorium, TextType, FieldOfApplication, LiteraryGenre, Newspaper, OfficialText,
-    Journal, InternetInfo, Book, Article, Other, Style
+    Journal, InternetInfo, Book, Article, Other, Style, Phrase, Word, WordGrammar, WordSemanticExpression,
+    CreateWordFromExcel
 )
+
+
+@admin.register(CreateWordFromExcel)
+class CreateWordFromExcelAdmin(admin.ModelAdmin):
+    list_display = ('id', 'phrase', 'word_phrase', 'file', 'get_total_words')
+    autocomplete_fields = ['phrase']
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('phrase')
+
+
+@admin.register(Word)
+class WordAdmin(admin.ModelAdmin):
+    list_display = ('id', 'phrase', 'word')
+
+
+@admin.register(WordGrammar)
+class WordGrammarAdmin(admin.ModelAdmin):
+    list_display = ('id', 'phrase', 'word')
+
+
+@admin.register(WordSemanticExpression)
+class WordSemanticExpressionAdmin(admin.ModelAdmin):
+    list_display = ('id', 'phrase', 'word')
+
+
+@admin.register(Phrase)
+class PhrasesAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name', 'parent')
+    search_fields = ('id', 'name', 'parent__name')
 
 
 @admin.register(Style)
