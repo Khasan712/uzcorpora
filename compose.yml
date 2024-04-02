@@ -4,8 +4,6 @@ services:
   uzcorpora:
     build: ./
     container_name: "uzcorpora"
-    restart: always
-    command: bash entrypoint.sh
     volumes:
       - .:/uzcorpora
     ports:

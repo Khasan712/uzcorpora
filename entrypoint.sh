@@ -1,8 +1,7 @@
-#set -o errexit
-#set -o pipefail
-#set -o nounset
-
+#!/bin/sh
+echo 'entrypoint in >>>>>>>>'
 python manage.py makemigrations --noinput
 python manage.py migrate --noinput
 python manage.py collectstatic --noinput
-python manage.py runserver 0.0.0.0:8060
+gunicorn config.wsgi:application --workers 4 --worker-class gevent --bind 0.0.0.0:8060 --backlog 1000 --timeout 30 --graceful-timeout 30 --max-requests 1000 --max-requests-jitter 100
+echo '>>>>>>>> Exiting entrypoint'

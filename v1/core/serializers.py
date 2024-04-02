@@ -89,6 +89,9 @@ class TextPostBaseSerializer(serializers.ModelSerializer):
         if self.context['request'].method == 'GET' and self.context.get('kwargs').get('pk'):
             res = super().to_representation(instance)
             res['corpus'] = CorpusGetSerializer(instance.corpus).data
+            if res['corpus'].id == 4:
+                res['text_en'] = instance.text_en
+                res['file_en'] = instance.file_en
             if res.get('style'):
                 res['style'] = StyleGetSerializer(instance.style).data
             if res.get('text_type'):

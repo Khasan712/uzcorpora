@@ -57,7 +57,8 @@ INSTALLED_APPS += [
 INSTALLED_APPS += [
     'v1.users',
     'v1.corpus',
-    'v1.core'
+    'v1.core',
+    'v1.e_db',
 ]
 
 MIDDLEWARE = [

@@ -21,6 +21,8 @@ docxpy==0.8.5
 drf-yasg==1.21.7
 et-xmlfile==1.1.0
 exceptiongroup==1.2.0
+gevent==24.2.1
+greenlet==3.0.3
 gunicorn==21.2.0
 idna==3.6
 inflection==0.5.1
@@ -56,3 +58,5 @@ uritemplate==4.1.1
 urllib3==2.2.0
 vine==5.1.0
 wcwidth==0.2.13
+zope.event==5.0
+zope.interface==6.2
