@@ -1,3 +1,4 @@
+from django.db.models import Q
 from rest_framework.generics import ListAPIView
 from rest_framework.viewsets import GenericViewSet
 from rest_framework.mixins import CreateModelMixin, ListModelMixin, RetrieveModelMixin, UpdateModelMixin
@@ -60,11 +61,25 @@ class TextMetaDataApi(CreateModelMixin, ListModelMixin, RetrieveModelMixin, Upda
     ).prefetch_related('level_of_auditorium').order_by('-id')
 
     def get_queryset(self):
-        return super().get_queryset().filter(creator_id=self.request.user.id)
+        search_param = self.request.query_params.get('q')
+        filter_data = Q(creator_id=self.request.user.id) if self.request.user.role == 'manager' else Q()
+        if search_param:
+            filter_data &= (
+                Q(number__icontains=search_param) | Q(net_address__icontains=search_param) |
+                Q(theme__icontains=search_param) | Q(author__icontains=search_param) |
+                Q(author_type__icontains=search_param) | Q(name__icontains=search_param) |
+                Q(auditorium_age__icontains=search_param) | Q(document_type__icontains=search_param) |
+                Q(document_owner__icontains=search_param) | Q(document_namely__icontains=search_param) |
+                Q(publisher__icontains=search_param) | Q(text_number__icontains=search_param) |
+                Q(issn__icontains=search_param) | Q(authors__icontains=search_param) |
+                Q(time_and_place_of_the_event__icontains=search_param) | Q(isbn__icontains=search_param) |
+                Q(name_of_article__icontains=search_param)
+            )
+        return super().get_queryset().filter(filter_data)
 
     def validate_get_serializer(self):
         request_method = self.request.method
-        if request_method == 'POST' or request_method == 'PATCH' or (request_method == 'GET' and self.kwargs.get('pk')):
+        if request_method in ['POST', 'PATCH'] or (request_method == 'GET' and self.kwargs.get('pk')):
             source_type = self.request.query_params.get('source_type')
             if not source_type or source_type not in (
                     'newspaper', 'official_text', 'journal', 'internet_info', 'book', 'article', 'other'

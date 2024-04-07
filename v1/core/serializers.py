@@ -71,17 +71,16 @@ class TextPostBaseSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         data = super().validate(attrs)
 
-        raise_file_and_text_error(data.get('file'), data.get('text'))
-
-        raise_file_format_error(data.get('file'))
+        if self.context['request'].method == 'POST':
+            raise_file_and_text_error(data.get('file'), data.get('text'))
+            raise_file_format_error(data.get('file'))
 
         level_of_auditorium = get_or_raise_level_of_auditorium(data.get('level_of_auditorium'))
-
         if level_of_auditorium:
             data.pop('level_of_auditorium')
             self.context['level_of_auditorium'] = level_of_auditorium
 
-        raise_file_and_text_error_en(data['corpus'], data.get('file_en'), data.get('text_en'))
+        raise_file_and_text_error_en(data.get('corpus'), data.get('file_en'), data.get('text_en'))
 
         return data
 
@@ -89,7 +88,7 @@ class TextPostBaseSerializer(serializers.ModelSerializer):
         if self.context['request'].method == 'GET' and self.context.get('kwargs').get('pk'):
             res = super().to_representation(instance)
             res['corpus'] = CorpusGetSerializer(instance.corpus).data
-            if res['corpus'].id == 4:
+            if res['corpus']['id'] == 4:
                 res['text_en'] = instance.text_en
                 res['file_en'] = instance.file_en
             if res.get('style'):
@@ -128,6 +127,7 @@ class NewspaperMetaDataPostSerializer(TextPostBaseSerializer):
         )
 
         extra_kwargs = {
+            'text': {'write_only': True},
             'name': {'required': True},
             'theme': {'required': True},
             'author': {'required': True},
@@ -148,6 +148,7 @@ class OfficialTextMetaDataPostSerializer(TextPostBaseSerializer):
         )
 
         extra_kwargs = {
+            'text': {'write_only': True},
             'document_type': {'required': True},
             'name': {'required': True},
             'published_at': {'required': True},
@@ -168,6 +169,7 @@ class JournalMetaDataPostSerializer(TextPostBaseSerializer):
         )
 
         extra_kwargs = {
+            'text': {'write_only': True},
             'name': {'required': True},
             'theme': {'required': True},
             'author': {'required': True},
@@ -190,6 +192,7 @@ class InternetInfoMetaDataPostSerializer(TextPostBaseSerializer):
         )
 
         extra_kwargs = {
+            'text': {'write_only': True},
             'name': {'required': True},
             'author': {'required': True},
             'published_at': {'required': True},
@@ -212,6 +215,7 @@ class BookMetaDataPostSerializer(TextPostBaseSerializer):
         )
 
         extra_kwargs = {
+            'text': {'write_only': True},
             'name': {'required': True},
             'authors': {'required': True},
             'published_at': {'required': True},
@@ -233,6 +237,7 @@ class ArticleMetaDataPostSerializer(TextPostBaseSerializer):
         )
 
         extra_kwargs = {
+            'text': {'write_only': True},
             'name': {'required': True},
             'authors': {'required': True},
             'article_created_at': {'required': True},

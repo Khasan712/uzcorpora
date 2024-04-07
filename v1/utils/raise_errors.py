@@ -18,17 +18,18 @@ def raise_file_and_text_error(file=None, text=None):
         })
 
 
-def raise_file_and_text_error_en(corpus, file_en=None, text_en=None):
+def raise_file_and_text_error_en(corpus=None, file_en=None, text_en=None):
     if file_en and text_en:
         raise ValidationError({
             "status": False,
             "error": "You can not upload 'file en' and 'text en' in the same time!"
         })
-    elif corpus.id == 4 and (not text_en and not file_en):
-        raise ValidationError({
-            "status": False,
-            "error": "File en or text en error"
-        })
+    elif corpus:
+        if corpus.id == 4 and (not text_en and not file_en):
+            raise ValidationError({
+                "status": False,
+                "error": "File en or text en error"
+            })
 
 
 def get_or_raise_level_of_auditorium(level_of_auditorium=None):
