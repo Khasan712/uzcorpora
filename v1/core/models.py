@@ -197,6 +197,14 @@ class Text(CoreBaseAbstract):
         return f"{self.id} - {self.source_type}"
 
 
+class ParagraphOfText(CustomBaseAbstract):
+    text = models.ForeignKey(Text, on_delete=models.SET_NULL, null=True)
+    paragraph = models.TextField()
+
+    def __str__(self):
+        return f'{self.id} - {len(str(self.paragraph))}'
+
+
 class Newspaper(Text):
 
     objects = NewspaperManager()

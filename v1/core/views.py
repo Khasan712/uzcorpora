@@ -53,17 +53,11 @@ class LevelOfAuditoriumGetApi(ListAPIView):
         return queryset.filter(parent__isnull=True)
 
 
-class TextMetaDataApi(
-    CreateModelMixin,
-    ListModelMixin,
-    RetrieveModelMixin,
-    UpdateModelMixin,
-    GenericViewSet
-):
+class TextMetaDataApi(CreateModelMixin, ListModelMixin, RetrieveModelMixin, UpdateModelMixin, GenericViewSet):
     permission_classes = [IsAdmin | IsManager]
     queryset = Text.objects.select_related(
-        'style', 'text_type', 'field_of_application', 'literary_genre').prefetch_related(
-        'level_of_auditorium').order_by('-id')
+        'style', 'text_type', 'field_of_application', 'literary_genre'
+    ).prefetch_related('level_of_auditorium').order_by('-id')
 
     def get_queryset(self):
         return super().get_queryset().filter(creator_id=self.request.user.id)
