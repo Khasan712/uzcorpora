@@ -2,8 +2,13 @@ from django.contrib import admin
 from v1.core.models import (
     CapacityLevelOfTheAuditorium, TextType, FieldOfApplication, LiteraryGenre, Newspaper, OfficialText,
     Journal, InternetInfo, Book, Article, Other, Style, Phrase, Word, WordGrammar, WordSemanticExpression,
-    CreateWordFromExcel, ParagraphOfText
+    CreateWordFromExcel, ParagraphOfText, Text
 )
+
+
+@admin.register(Text)
+class TextAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name', 'corpus', 'word_qty', 'sentence_qty', 'created_at', 'updated_at', 'creator')
 
 
 @admin.register(ParagraphOfText)

@@ -110,6 +110,9 @@ class CapacityLevelOfTheAuditorium(CustomBaseAbstract):
     name = models.CharField(_("Salohiyat darajasi"), max_length=100)
     parent = models.ForeignKey('self', on_delete=models.SET_NULL, blank=True, null=True)
 
+    class Meta:
+        verbose_name_plural = '9) Auditoriya yosh salohiyati'
+
     def __str__(self):
         return f'{self.id} - {self.name}'
 
@@ -193,6 +196,9 @@ class Text(CoreBaseAbstract):
     pages_qty = models.PositiveIntegerField(_("Sahifalari"), blank=True, null=True)
     name_of_article = models.CharField(_("Manbaning (jurnal, kitob) nomi"), max_length=255, blank=True, null=True)
 
+    class Meta:
+        verbose_name_plural = '1) Matnlar'
+
     def __str__(self):
         return f"{self.id} - {self.source_type}"
 
@@ -211,6 +217,7 @@ class Newspaper(Text):
 
     class Meta:
         proxy = True
+        verbose_name_plural = '2) Gazetalar'
 
 
 class OfficialText(Text):
@@ -218,6 +225,7 @@ class OfficialText(Text):
 
     class Meta:
         proxy = True
+        verbose_name_plural = '3) Rasmiy matnlar'
 
 
 class Journal(Text):
@@ -225,6 +233,7 @@ class Journal(Text):
 
     class Meta:
         proxy = True
+        verbose_name_plural = '4) Jurnallar'
 
 
 class InternetInfo(Text):
@@ -232,6 +241,7 @@ class InternetInfo(Text):
 
     class Meta:
         proxy = True
+        verbose_name_plural = '5) E-ma\'lumotlar'
 
 
 class Book(Text):
@@ -239,6 +249,7 @@ class Book(Text):
 
     class Meta:
         proxy = True
+        verbose_name_plural = '6) Kitoblar'
 
 
 class Article(Text):
@@ -246,6 +257,7 @@ class Article(Text):
 
     class Meta:
         proxy = True
+        verbose_name_plural = '7) Maqolalar'
 
 
 class Other(Text):
@@ -253,3 +265,5 @@ class Other(Text):
 
     class Meta:
         proxy = True
+        verbose_name_plural = '8) Boshqalar'
+

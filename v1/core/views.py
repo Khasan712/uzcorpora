@@ -59,6 +59,7 @@ class TextMetaDataApi(CreateModelMixin, ListModelMixin, RetrieveModelMixin, Upda
     queryset = Text.objects.select_related(
         'style', 'text_type', 'field_of_application', 'literary_genre'
     ).prefetch_related('level_of_auditorium').order_by('-id')
+    http_method_names = ["get", "post", "patch", "head", "options", "trace"]
 
     def get_queryset(self):
         search_param = self.request.query_params.get('q')
@@ -81,7 +82,7 @@ class TextMetaDataApi(CreateModelMixin, ListModelMixin, RetrieveModelMixin, Upda
         request_method = self.request.method
         if request_method in ['POST', 'PATCH'] or (request_method == 'GET' and self.kwargs.get('pk')):
             source_type = self.request.query_params.get('source_type')
-            if not source_type or source_type not in (
+            if source_type not in (
                     'newspaper', 'official_text', 'journal', 'internet_info', 'book', 'article', 'other'
             ):
                 raise ValidationError({
