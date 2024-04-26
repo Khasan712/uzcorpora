@@ -1,6 +1,6 @@
 from django.db import models
 from v1.utils.abstract import CustomBaseAbstract, CoreBaseAbstract
-from v1.commons.enums import AuthorType, WordPhrase
+from v1.commons.enums import AuthorType, WordPhrase, Lang
 from django.utils.translation import gettext_lazy as _
 from v1.utils.managers import (
     JournalManager, InternetInfoManager, BookManager, ArticleManager, NewspaperManager, OfficialTextManager,
@@ -206,6 +206,7 @@ class Text(CoreBaseAbstract):
 class ParagraphOfText(CustomBaseAbstract):
     text = models.ForeignKey(Text, on_delete=models.SET_NULL, null=True)
     paragraph = models.TextField()
+    lang = models.CharField(max_length=5, choices=Lang.choices(), default='uz')
 
     def __str__(self):
         return f'{self.id} - {len(str(self.paragraph))}'
