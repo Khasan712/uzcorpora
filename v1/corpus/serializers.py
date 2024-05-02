@@ -6,5 +6,5 @@ class CorpusGetSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Corpus
-        fields = ('id', 'name')
+        fields = ('id', 'name', 'key')
 
