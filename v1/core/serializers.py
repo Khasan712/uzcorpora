@@ -1,10 +1,13 @@
 from rest_framework import serializers
+
+from v1.commons.enums import CorpusChoice
 from v1.core.models import (
     CapacityLevelOfTheAuditorium, Text, Style, TextType, FieldOfApplication, LiteraryGenre
 )
-
+from v1.utils.constants import FILE_TYPE, TEXT_TYPE
+from v1.utils.fields import GENERAL_TEXT_FIELDS
 from v1.utils.raise_errors import (
-    raise_file_format_error, raise_file_and_text_error, get_or_raise_level_of_auditorium, raise_file_and_text_error_en
+    raise_file_format_error, get_or_raise_level_of_auditorium, raise_file_and_text_error_en
 )
 from v1.corpus.serializers import CorpusGetSerializer
 
@@ -48,6 +51,7 @@ class TextGetSerializer(serializers.ModelSerializer):
             "id": instance.corpus.id,
             "name": instance.corpus.name
         }
+        res['text_file'] = FILE_TYPE if instance.file else TEXT_TYPE
         return res
 
 
@@ -65,22 +69,21 @@ class CapacityLevelOfTheAuditoriumGetSerializer(serializers.ModelSerializer):
 
 
 class TextPostBaseSerializer(serializers.ModelSerializer):
-    file = serializers.FileField(allow_empty_file=False, required=False)
-    file_en = serializers.FileField(allow_empty_file=False, required=False)
 
     def validate(self, attrs):
         data = super().validate(attrs)
 
         if self.context['request'].method == 'POST':
-            raise_file_and_text_error(data.get('file'), data.get('text'))
-            raise_file_format_error(data.get('file'))
+            raise_file_and_text_error_en(
+                data.get('corpus'),  data.get('file'), data.get('text'),
+                data.get('file_en'), data.get('text_en'), data.get('file_tr'), data.get('text_tr'),
+            )
+            raise_file_format_error(data.get('file'), data.get('file_en'), data.get('file_tr'))
 
         level_of_auditorium = get_or_raise_level_of_auditorium(data.get('level_of_auditorium'))
         if level_of_auditorium:
             data.pop('level_of_auditorium')
             self.context['level_of_auditorium'] = level_of_auditorium
-
-        raise_file_and_text_error_en(data.get('corpus'), data.get('file_en'), data.get('text_en'))
 
         return data
 
@@ -88,8 +91,7 @@ class TextPostBaseSerializer(serializers.ModelSerializer):
         if self.context['request'].method == 'GET' and self.context.get('kwargs').get('pk'):
             res = super().to_representation(instance)
             res['corpus'] = CorpusGetSerializer(instance.corpus).data
-            if res['corpus']['id'] == 4:
-                res['text_en'] = instance.text_en
+            if res['corpus']['key'] == CorpusChoice.choices()[0][1]:
                 res['file_en'] = instance.file_en
             if res.get('style'):
                 res['style'] = StyleGetSerializer(instance.style).data
@@ -120,18 +122,17 @@ class NewspaperMetaDataPostSerializer(TextPostBaseSerializer):
 
     class Meta:
         model = Text
-        fields = (
+        fields = [
             'id', 'name', 'corpus', 'text', 'file', 'text_en', 'file_en', 'source_type',
             'number', 'net_address', 'theme', 'author', 'author_type', 'wrote_at',
             'published_at', 'style', 'auditorium_age', 'level_of_auditorium'
-        )
+        ] + GENERAL_TEXT_FIELDS
 
         extra_kwargs = {
             'text': {'write_only': True},
             'name': {'required': True},
             'theme': {'required': True},
             'author': {'required': True},
-            'wrote_at': {'required': True},
             'style': {'required': True},
             'net_address': {'required': True},
             'corpus': {'required': True},
@@ -142,10 +143,9 @@ class OfficialTextMetaDataPostSerializer(TextPostBaseSerializer):
 
     class Meta:
         model = Text
-        fields = (
-            'id', 'name', 'corpus', 'text', 'file', 'text_en', 'file_en', 'source_type',
+        fields = [
             'number', 'net_address', 'document_type', 'document_owner', 'published_at'
-        )
+        ] + GENERAL_TEXT_FIELDS
 
         extra_kwargs = {
             'text': {'write_only': True},
@@ -162,11 +162,10 @@ class JournalMetaDataPostSerializer(TextPostBaseSerializer):
 
     class Meta:
         model = Text
-        fields = (
-            'id', 'name', 'corpus', 'text', 'file', 'text_en', 'file_en', 'source_type',
+        fields = [
             'number', 'net_address', 'theme', 'author', 'author_type', 'wrote_at', 'published_at', 'publisher',
             'text_number', 'issn', 'text_type', 'style', 'auditorium_age', 'level_of_auditorium'
-        )
+         ] + GENERAL_TEXT_FIELDS
 
         extra_kwargs = {
             'text': {'write_only': True},
@@ -185,11 +184,10 @@ class InternetInfoMetaDataPostSerializer(TextPostBaseSerializer):
 
     class Meta:
         model = Text
-        fields = (
-            'id', 'name', 'corpus', 'text', 'file', 'text_en', 'file_en', 'source_type',
+        fields = [
             'net_address', 'author', 'author_type', 'wrote_at', 'published_at', 'field_of_application',
             'text_type', 'style', 'auditorium_age', 'level_of_auditorium'
-        )
+        ] + GENERAL_TEXT_FIELDS
 
         extra_kwargs = {
             'text': {'write_only': True},
@@ -207,12 +205,11 @@ class BookMetaDataPostSerializer(TextPostBaseSerializer):
 
     class Meta:
         model = Text
-        fields = (
-            'id', 'name', 'corpus', 'text', 'file', 'text_en', 'file_en', 'source_type',
+        fields = [
             'authors', 'wrote_at', 'published_at', 'publisher', 'text_number', 'isbn', 'text_type',
             'literary_genre', 'time_and_place_of_the_event', 'style', 'auditorium_age', 'level_of_auditorium',
-            'field_of_application'
-        )
+            'field_of_application' 'net_address'
+        ] + GENERAL_TEXT_FIELDS
 
         extra_kwargs = {
             'text': {'write_only': True},
@@ -230,11 +227,10 @@ class ArticleMetaDataPostSerializer(TextPostBaseSerializer):
 
     class Meta:
         model = Text
-        fields = (
-            'id', 'name', 'corpus', 'text', 'file', 'text_en', 'file_en', 'source_type',
+        fields = [
             'authors', 'article_created_at', 'pages_qty', 'name_of_article', 'published_at', 'issn', 'net_address',
             'text_type', 'style', 'auditorium_age', 'level_of_auditorium', 'field_of_application'
-        )
+        ] + GENERAL_TEXT_FIELDS
 
         extra_kwargs = {
             'text': {'write_only': True},

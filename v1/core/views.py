@@ -1,4 +1,6 @@
-from django.db.models import Q
+from django.db.models import Q, Sum, Count
+from datetime import datetime
+from rest_framework.views import APIView
 from rest_framework.generics import ListAPIView
 from rest_framework.viewsets import GenericViewSet
 from rest_framework.mixins import CreateModelMixin, ListModelMixin, RetrieveModelMixin, UpdateModelMixin
@@ -13,6 +15,65 @@ from v1.core.serializers import (
 )
 from v1.utils.permissions import IsManager, IsAdmin
 from rest_framework.validators import ValidationError
+from rest_framework.response import Response
+
+
+class TextStatisticsApiV1(APIView):
+    permission_classes = (IsAdmin,)
+    queryset = Text.objects.select_related(
+        'style', 'text_type', 'field_of_application', 'literary_genre'
+    ).prefetch_related('level_of_auditorium').order_by('-id')
+
+    def get_queryset(self):
+        params = self.request.query_params
+        search_param = params.get('q')
+        corpus_id = params.get('corpus_id')
+        source_type = params.get('source_type')
+
+        try:
+            from_date = params.get('from_date')
+            from_date = datetime.strptime(str(from_date), '%Y-%m-%d')
+        except:
+            from_date = None
+
+        try:
+            to_date = params.get('to_date')
+            to_date = datetime.strptime(str(to_date), '%Y-%m-%d')
+        except:
+            to_date = None
+
+        filter_data = Q()
+
+        if search_param:
+            filter_data &= (
+                Q(number__icontains=search_param) | Q(net_address__icontains=search_param) |
+                Q(theme__icontains=search_param) | Q(author__icontains=search_param) |
+                Q(author_type__icontains=search_param) | Q(name__icontains=search_param) |
+                Q(auditorium_age__icontains=search_param) | Q(document_type__icontains=search_param) |
+                Q(document_owner__icontains=search_param) | Q(document_namely__icontains=search_param) |
+                Q(publisher__icontains=search_param) | Q(text_number__icontains=search_param) |
+                Q(issn__icontains=search_param) | Q(authors__icontains=search_param) |
+                Q(time_and_place_of_the_event__icontains=search_param) | Q(isbn__icontains=search_param) |
+                Q(name_of_article__icontains=search_param)
+            )
+        if corpus_id and str(corpus_id).replace(',', '').isdigit():
+            filter_data &= Q(corpus_id__in=corpus_id.split(','))
+        if source_type:
+            filter_data &= Q(source_type__in=source_type.split(','))
+        if from_date:
+            filter_data &= Q(created_at__gte=from_date)
+        if to_date:
+            filter_data &= Q(created_at__lte=to_date)
+
+        return self.queryset.filter(filter_data).only('id', 'word_qty', 'sentence_qty')
+
+    def get_statistics(self):
+        return self.get_queryset().aggregate(
+            total_text=Count('id'), total_word=Sum('word_qty'), total_sentence=Sum('sentence_qty')
+        )
+
+    def get(self, request):
+        return Response(self.get_statistics())
 
 
 class LiteraryGenreGetApi(ListAPIView):
@@ -62,8 +123,25 @@ class TextMetaDataApi(CreateModelMixin, ListModelMixin, RetrieveModelMixin, Upda
     http_method_names = ["get", "post", "patch", "head", "options", "trace"]
 
     def get_queryset(self):
-        search_param = self.request.query_params.get('q')
+        params = self.request.query_params
+        search_param = params.get('q')
+        corpus_id = params.get('corpus_id')
+        source_type = params.get('source_type')
+
+        try:
+            from_date = params.get('from_date')
+            from_date = datetime.strptime(str(from_date), '%Y-%m-%d')
+        except Exception:
+            from_date = None
+
+        try:
+            to_date = params.get('to_date')
+            to_date = datetime.strptime(str(to_date), '%Y-%m-%d')
+        except:
+            to_date = None
+
         filter_data = Q(creator_id=self.request.user.id) if self.request.user.role == 'manager' else Q()
+
         if search_param:
             filter_data &= (
                 Q(number__icontains=search_param) | Q(net_address__icontains=search_param) |
@@ -76,6 +154,15 @@ class TextMetaDataApi(CreateModelMixin, ListModelMixin, RetrieveModelMixin, Upda
                 Q(time_and_place_of_the_event__icontains=search_param) | Q(isbn__icontains=search_param) |
                 Q(name_of_article__icontains=search_param)
             )
+        if corpus_id and str(corpus_id).replace(',', '').isdigit():
+            filter_data &= Q(corpus_id__in=corpus_id.split(','))
+        if source_type:
+            filter_data &= Q(source_type__in=source_type.split(','))
+        if from_date:
+            filter_data &= Q(created_at__gte=from_date)
+        if to_date:
+            filter_data &= Q(created_at__lte=to_date)
+
         return super().get_queryset().filter(filter_data)
 
     def validate_get_serializer(self):

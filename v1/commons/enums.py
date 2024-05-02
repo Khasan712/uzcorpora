@@ -1,9 +1,22 @@
 from enum import Enum
 
 
+class CorpusChoice(Enum):
+    parallel_corpus = 'parallel_corpus'
+    other = 'other'
+
+    @classmethod
+    def choices(cls):
+        return (
+            (key.value, key.name)
+            for key in cls
+        )
+
+
 class Lang(Enum):
     uz = 'uz'
     en = 'en'
+    tr = 'tr'  # Turkey
 
     @classmethod
     def choices(cls):

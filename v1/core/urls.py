@@ -1,7 +1,7 @@
 from django.urls import path
 from v1.core.views import (
     LevelOfAuditoriumGetApi, TextMetaDataApi, StyleGetApi, TextTypeGetAPi, FieldOfApplicationGetAPi,
-    LiteraryGenreGetApi
+    LiteraryGenreGetApi, TextStatisticsApiV1
 )
 from rest_framework.routers import DefaultRouter
 
@@ -15,4 +15,5 @@ urlpatterns = [
     path('text-type/', TextTypeGetAPi.as_view()),
     path('style/', StyleGetApi.as_view()),
     path('level-of-auditorium/', LevelOfAuditoriumGetApi.as_view()),
+    path('statistics/', TextStatisticsApiV1.as_view()),
 ]+router.urls

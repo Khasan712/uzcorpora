@@ -207,6 +207,7 @@ class ParagraphOfText(CustomBaseAbstract):
     text = models.ForeignKey(Text, on_delete=models.SET_NULL, null=True)
     paragraph = models.TextField()
     lang = models.CharField(max_length=5, choices=Lang.choices(), default='uz')
+    uuid = models.CharField(max_length=250, blank=True, null=True)
 
     def __str__(self):
         return f'{self.id} - {len(str(self.paragraph))}'
