@@ -9,6 +9,27 @@ from v1.utils.managers import (
 from v1.utils.validations import validate_file_format_excel
 
 
+class Language(CustomBaseAbstract):
+    name = models.CharField(max_length=10, unique=True)
+    description = models.CharField(max_length=100)
+    is_main = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f'{self.id} - {self.name}'
+
+
+class LangText(CustomBaseAbstract):
+    text = models.ForeignKey('core.Text', on_delete=models.SET_NULL, null=True)
+    lang = models.ForeignKey(Language, on_delete=models.SET_NULL, null=True)
+    text = models.TextField(blank=True, null=True)
+    file = models.FileField(upload_to='core/files/', blank=True, null=True)
+    word_qty = models.PositiveIntegerField(default=0)
+    sentence_qty = models.PositiveIntegerField(default=0)
+
+    def __str__(self):
+        return f"{self.id} - {self.lang.name}"
+
+
 class Phrase(CustomBaseAbstract):
     """
     uz,
@@ -197,7 +218,7 @@ class Text(CoreBaseAbstract):
     name_of_article = models.CharField(_("Manbaning (jurnal, kitob) nomi"), max_length=255, blank=True, null=True)
 
     class Meta:
-        verbose_name_plural = '1) Matnlar'
+        verbose_name_plural = "1) Matnlar | Meta ma'lumot"
 
     def __str__(self):
         return f"{self.id} - {self.source_type}"
