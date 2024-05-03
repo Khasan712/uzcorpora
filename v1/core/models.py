@@ -226,6 +226,7 @@ class Text(CoreBaseAbstract):
 
 class ParagraphOfText(CustomBaseAbstract):
     text = models.ForeignKey(Text, on_delete=models.SET_NULL, null=True)
+    lang_text = models.ForeignKey(LangText, on_delete=models.SET_NULL, blank=True, null=True)
     paragraph = models.TextField()
     lang = models.CharField(max_length=5, choices=Lang.choices(), default='uz')
     uuid = models.CharField(max_length=250, blank=True, null=True)
