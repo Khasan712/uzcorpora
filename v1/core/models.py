@@ -14,17 +14,23 @@ class Language(CustomBaseAbstract):
     description = models.CharField(max_length=100)
     is_main = models.BooleanField(default=False)
 
+    class Meta:
+        verbose_name_plural = 'K) Tillar'
+
     def __str__(self):
         return f'{self.id} - {self.name}'
 
 
 class LangText(CustomBaseAbstract):
-    text = models.ForeignKey('core.Text', on_delete=models.SET_NULL, null=True)
+    text_obj = models.ForeignKey('core.Text', on_delete=models.SET_NULL, null=True)
     lang = models.ForeignKey(Language, on_delete=models.SET_NULL, null=True)
     text = models.TextField(blank=True, null=True)
     file = models.FileField(upload_to='core/files/', blank=True, null=True)
     word_qty = models.PositiveIntegerField(default=0)
     sentence_qty = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        verbose_name_plural = 'J) Matnlar'
 
     def __str__(self):
         return f"{self.id} - {self.lang.name}"
@@ -132,7 +138,7 @@ class CapacityLevelOfTheAuditorium(CustomBaseAbstract):
     parent = models.ForeignKey('self', on_delete=models.SET_NULL, blank=True, null=True)
 
     class Meta:
-        verbose_name_plural = '9) Auditoriya yosh salohiyati'
+        verbose_name_plural = 'I) Auditoriya yosh salohiyati'
 
     def __str__(self):
         return f'{self.id} - {self.name}'
@@ -218,7 +224,7 @@ class Text(CoreBaseAbstract):
     name_of_article = models.CharField(_("Manbaning (jurnal, kitob) nomi"), max_length=255, blank=True, null=True)
 
     class Meta:
-        verbose_name_plural = "1) Matnlar | Meta ma'lumot"
+        verbose_name_plural = "A) Matnlar | Meta ma'lumot"
 
     def __str__(self):
         return f"{self.id} - {self.source_type}"
@@ -241,7 +247,7 @@ class Newspaper(Text):
 
     class Meta:
         proxy = True
-        verbose_name_plural = '2) Gazetalar'
+        verbose_name_plural = 'B) Gazetalar'
 
 
 class OfficialText(Text):
@@ -249,7 +255,7 @@ class OfficialText(Text):
 
     class Meta:
         proxy = True
-        verbose_name_plural = '3) Rasmiy matnlar'
+        verbose_name_plural = 'C) Rasmiy matnlar'
 
 
 class Journal(Text):
@@ -257,7 +263,7 @@ class Journal(Text):
 
     class Meta:
         proxy = True
-        verbose_name_plural = '4) Jurnallar'
+        verbose_name_plural = 'D) Jurnallar'
 
 
 class InternetInfo(Text):
@@ -265,7 +271,7 @@ class InternetInfo(Text):
 
     class Meta:
         proxy = True
-        verbose_name_plural = '5) E-ma\'lumotlar'
+        verbose_name_plural = 'E) E-ma\'lumotlar'
 
 
 class Book(Text):
@@ -273,7 +279,7 @@ class Book(Text):
 
     class Meta:
         proxy = True
-        verbose_name_plural = '6) Kitoblar'
+        verbose_name_plural = 'F) Kitoblar'
 
 
 class Article(Text):
@@ -281,7 +287,7 @@ class Article(Text):
 
     class Meta:
         proxy = True
-        verbose_name_plural = '7) Maqolalar'
+        verbose_name_plural = 'G) Maqolalar'
 
 
 class Other(Text):
@@ -289,5 +295,5 @@ class Other(Text):
 
     class Meta:
         proxy = True
-        verbose_name_plural = '8) Boshqalar'
+        verbose_name_plural = 'H) Boshqalar'
 

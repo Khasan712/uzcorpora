@@ -1,8 +1,8 @@
 from rest_framework import serializers
-
+from django.db import transaction
 from v1.commons.enums import CorpusChoice
 from v1.core.models import (
-    CapacityLevelOfTheAuditorium, Text, Style, TextType, FieldOfApplication, LiteraryGenre
+    CapacityLevelOfTheAuditorium, Text, Style, TextType, FieldOfApplication, LiteraryGenre, Language
 )
 from v1.utils.constants import FILE_TYPE, TEXT_TYPE
 from v1.utils.fields import GENERAL_TEXT_FIELDS
@@ -91,7 +91,7 @@ class TextPostBaseSerializer(serializers.ModelSerializer):
         if self.context['request'].method == 'GET' and self.context.get('kwargs').get('pk'):
             res = super().to_representation(instance)
             res['corpus'] = CorpusGetSerializer(instance.corpus).data
-            if res['corpus']['key'] == CorpusChoice.choices()[0][1]:
+            if res['corpus']['key'] == list(CorpusChoice.choices())[0][1]:
                 res['file_en'] = instance.file_en
             if res.get('style'):
                 res['style'] = StyleGetSerializer(instance.style).data
@@ -108,12 +108,21 @@ class TextPostBaseSerializer(serializers.ModelSerializer):
             return res
         return {"status": True}
 
+    def get_text_or_file_and_save(self, text_obj):
+        fields = self.context['request'].data
+        langs = Language.objects.filter(is_active=True)
+        text_or_file = []
+        for lang in langs:
+            pass
+
     def create(self, validated_data):
-        obj = super().create(validated_data)
-        level_of_auditorium = self.context.get('level_of_auditorium')
-        if level_of_auditorium:
-            obj.level_of_auditorium.set(level_of_auditorium)
-            obj.save()
+        with transaction.atomic():
+            obj = super().create(validated_data)
+            level_of_auditorium = self.context.get('level_of_auditorium')
+            if level_of_auditorium:
+                obj.level_of_auditorium.set(level_of_auditorium)
+                obj.save()
+            # raise ValueError
         return obj
 
 
@@ -123,7 +132,6 @@ class NewspaperMetaDataPostSerializer(TextPostBaseSerializer):
     class Meta:
         model = Text
         fields = [
-            'id', 'name', 'corpus', 'text', 'file', 'text_en', 'file_en', 'source_type',
             'number', 'net_address', 'theme', 'author', 'author_type', 'wrote_at',
             'published_at', 'style', 'auditorium_age', 'level_of_auditorium'
         ] + GENERAL_TEXT_FIELDS

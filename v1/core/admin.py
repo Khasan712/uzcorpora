@@ -2,8 +2,18 @@ from django.contrib import admin
 from v1.core.models import (
     CapacityLevelOfTheAuditorium, TextType, FieldOfApplication, LiteraryGenre, Newspaper, OfficialText,
     Journal, InternetInfo, Book, Article, Other, Style, Phrase, Word, WordGrammar, WordSemanticExpression,
-    CreateWordFromExcel, ParagraphOfText, Text
+    CreateWordFromExcel, ParagraphOfText, Text, Language, LangText
 )
+
+
+@admin.register(Language)
+class LanguageAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name', 'description', 'is_main', 'created_at', 'updated_at')
+
+
+@admin.register(LangText)
+class LangTextAdmin(admin.ModelAdmin):
+    list_display = ('id', 'lang', 'word_qty', 'sentence_qty', 'created_at', 'updated_at')
 
 
 @admin.register(Text)
@@ -13,7 +23,7 @@ class TextAdmin(admin.ModelAdmin):
 
 @admin.register(ParagraphOfText)
 class ParagraphOfTextAdmin(admin.ModelAdmin):
-    list_display = ('id', 'text', 'created_at', 'is_active')
+    list_display = ('id', 'text', 'lang', 'created_at', 'is_active')
 
 
 @admin.register(CreateWordFromExcel)
