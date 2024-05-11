@@ -13,12 +13,12 @@ class LanguageAdmin(admin.ModelAdmin):
 
 @admin.register(LangText)
 class LangTextAdmin(admin.ModelAdmin):
-    list_display = ('id', 'lang', 'word_qty', 'sentence_qty', 'created_at', 'updated_at')
+    list_display = ('id', 'lang', 'created_at', 'updated_at')
 
 
 @admin.register(Text)
 class TextAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'corpus', 'word_qty', 'sentence_qty', 'created_at', 'updated_at', 'creator')
+    list_display = ('id', 'name', 'corpus', 'created_at', 'updated_at', 'creator')
 
 
 @admin.register(ParagraphOfText)
@@ -83,27 +83,27 @@ class LiteraryGenreAdmin(admin.ModelAdmin):
 
 @admin.register(Newspaper)
 class NewspaperAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'corpus', 'word_qty', 'sentence_qty', 'created_at', 'updated_at')
+    list_display = ('id', 'name', 'corpus', 'created_at', 'updated_at')
 
 
 @admin.register(OfficialText)
 class OfficialTextAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'corpus', 'word_qty', 'sentence_qty', 'created_at', 'updated_at')
+    list_display = ('id', 'name', 'corpus', 'created_at', 'updated_at')
 
 
 @admin.register(Journal)
 class JournalAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'corpus', 'word_qty', 'sentence_qty', 'created_at', 'updated_at')
+    list_display = ('id', 'name', 'corpus', 'created_at', 'updated_at')
 
 
 @admin.register(InternetInfo)
 class InternetInfoAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'corpus', 'word_qty', 'sentence_qty', 'created_at', 'updated_at')
+    list_display = ('id', 'name', 'corpus', 'created_at', 'updated_at')
 
 
 @admin.register(Book)
 class BookAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'corpus', 'word_qty', 'sentence_qty', 'created_at', 'updated_at')
+    list_display = ('id', 'name', 'corpus', 'created_at', 'updated_at')
 
     def get_queryset(self, request):
         queryset = super().get_queryset(request)
@@ -114,11 +114,11 @@ class BookAdmin(admin.ModelAdmin):
 
 @admin.register(Article)
 class ArticleAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'corpus', 'word_qty', 'sentence_qty', 'created_at', 'updated_at')
+    list_display = ('id', 'name', 'corpus', 'created_at', 'updated_at')
 
 
 @admin.register(Other)
 class OtherAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'corpus', 'word_qty', 'sentence_qty', 'created_at', 'updated_at')
+    list_display = ('id', 'name', 'corpus', 'created_at', 'updated_at')
 
 

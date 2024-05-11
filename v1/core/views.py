@@ -1,11 +1,12 @@
-from django.db.models import Q, Sum, Count
+from django.db.models import Q, Sum, Count, Subquery, OuterRef, Case, When
+from django.db.models.functions import Coalesce
 from datetime import datetime
 from rest_framework.views import APIView
 from rest_framework.generics import ListAPIView
 from rest_framework.viewsets import GenericViewSet
 from rest_framework.mixins import CreateModelMixin, ListModelMixin, RetrieveModelMixin, UpdateModelMixin
 from v1.core.models import (
-    CapacityLevelOfTheAuditorium, Style, Text, TextType, FieldOfApplication, LiteraryGenre, Language
+    CapacityLevelOfTheAuditorium, Style, Text, TextType, FieldOfApplication, LiteraryGenre, LangText
 )
 from v1.core.serializers import (
     CapacityLevelOfTheAuditoriumGetSerializer, NewspaperMetaDataPostSerializer, StyleGetSerializer,
@@ -163,7 +164,29 @@ class TextMetaDataApi(CreateModelMixin, ListModelMixin, RetrieveModelMixin, Upda
         if to_date:
             filter_data &= Q(created_at__lte=to_date)
 
+        if self.request.method == 'GET' and not self.kwargs.get('pk'):
+            return super().get_queryset().filter(filter_data).annotate(
+                word_qty=Coalesce(Subquery(self.get_word_qty()), 0),
+                sentence_qty=Coalesce(Subquery(self.get_sentence_qty()), 0),
+                file=Coalesce(self.get_file(), None)
+            )
+
         return super().get_queryset().filter(filter_data)
+
+    def get_word_qty(self):
+        return LangText.objects.select_related('text_obj', 'lang').filter(
+            text_obj_id=OuterRef('id'), lang__is_main=True
+        ).values('word_qty')
+
+    def get_sentence_qty(self):
+        return LangText.objects.select_related('text_obj', 'lang').filter(
+            text_obj_id=OuterRef('id'), lang__is_main=True
+        ).values('sentence_qty')
+
+    def get_file(self):
+        return LangText.objects.select_related('text_obj', 'lang').filter(
+            text_obj_id=OuterRef('id'), lang__is_main=True
+        ).values('file')
 
     def validate_get_serializer(self):
         request_method = self.request.method

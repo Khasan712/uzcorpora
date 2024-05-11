@@ -44,7 +44,7 @@ class TextTypeGetSerializer(serializers.ModelSerializer):
 class TextGetSerializer(serializers.ModelSerializer):
     class Meta:
         model = Text
-        fields = ("id", "name", 'corpus', 'source_type', 'word_qty', 'sentence_qty', 'created_at', 'updated_at')
+        fields = ("id", "name", 'corpus', 'source_type', 'created_at', 'updated_at')
 
     def to_representation(self, instance):
         res = super().to_representation(instance)
@@ -52,7 +52,9 @@ class TextGetSerializer(serializers.ModelSerializer):
             "id": instance.corpus.id,
             "name": instance.corpus.name
         }
-        res['text_file'] = FILE_TYPE if instance.file else TEXT_TYPE
+        res['word_qty'] = getattr(instance, 'word_qty', 0)
+        res['sentence_qty'] = getattr(instance, 'sentence_qty', 0)
+        res['text_file'] = FILE_TYPE if getattr(instance, 'file', None) else TEXT_TYPE
         return res
 
 
@@ -137,7 +139,6 @@ class TextPostBaseSerializer(serializers.ModelSerializer):
             obj = super().create(validated_data)
             parallel_corpus = True if obj.corpus.key == list(CorpusChoice.choices())[0][1] else None
             self.get_text_or_file_and_save(obj, parallel_corpus)
-
             level_of_auditorium = self.context.get('level_of_auditorium')
             if level_of_auditorium:
                 obj.level_of_auditorium.set(level_of_auditorium)
