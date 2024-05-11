@@ -1,7 +1,6 @@
-from django.db.models.signals import post_save, pre_save
+from django.db.models.signals import pre_save
 from django.dispatch import receiver
-from v1.core.models import Text, CreateWordFromExcel, Word, WordGrammar, WordSemanticExpression
-from v1.utils.tasks.core import pop_text_from_file, count_words_and_sentences
+from v1.core.models import CreateWordFromExcel, Word, WordGrammar, WordSemanticExpression
 from openpyxl import load_workbook
 from v1.utils.validations import validate_word_apostrophe
 from django.core.validators import ValidationError
@@ -9,13 +8,10 @@ from django.db import transaction
 import uuid
 
 
-@receiver(post_save, sender=Text)
-def text_signals(sender, instance, created, **kwargs):
-    if created:
-        if instance.file or instance.file_en:
-            pop_text_from_file.delay(instance.id)
-        elif instance.text or instance.text_en:
-            count_words_and_sentences.delay(instance.id)
+# @receiver(post_save, sender=Text)
+# def text_signals(sender, instance, created, **kwargs):
+#     if created and getattr(instance, 'id', None):
+#         text_validate_and_config_task.delay(instance.id)
 
 
 @receiver(pre_save, sender=CreateWordFromExcel)

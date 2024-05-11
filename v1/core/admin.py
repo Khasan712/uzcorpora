@@ -23,7 +23,7 @@ class TextAdmin(admin.ModelAdmin):
 
 @admin.register(ParagraphOfText)
 class ParagraphOfTextAdmin(admin.ModelAdmin):
-    list_display = ('id', 'text', 'lang', 'created_at', 'is_active')
+    list_display = ('id', 'text', 'order_num', 'created_at', 'is_active')
 
 
 @admin.register(CreateWordFromExcel)

@@ -1,14 +1,15 @@
 from rest_framework import serializers
 from django.db import transaction
+from rest_framework.exceptions import ValidationError
 from v1.commons.enums import CorpusChoice
 from v1.core.models import (
-    CapacityLevelOfTheAuditorium, Text, Style, TextType, FieldOfApplication, LiteraryGenre, Language
+    CapacityLevelOfTheAuditorium, Text, Style, TextType, FieldOfApplication, LiteraryGenre, Language, LangText
 )
 from v1.utils.constants import FILE_TYPE, TEXT_TYPE
 from v1.utils.fields import GENERAL_TEXT_FIELDS
-from v1.utils.raise_errors import (
-    raise_file_format_error, get_or_raise_level_of_auditorium, raise_file_and_text_error_en
-)
+from v1.utils.file_services import get_file_paragraphs_qty
+from v1.utils.raise_errors import (get_or_raise_level_of_auditorium, raise_file_and_text_error)
+from v1.utils.tasks.core import text_validate_and_config_task
 from v1.corpus.serializers import CorpusGetSerializer
 
 
@@ -72,19 +73,10 @@ class TextPostBaseSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         data = super().validate(attrs)
-
-        if self.context['request'].method == 'POST':
-            raise_file_and_text_error_en(
-                data.get('corpus'),  data.get('file'), data.get('text'),
-                data.get('file_en'), data.get('text_en'), data.get('file_tr'), data.get('text_tr'),
-            )
-            raise_file_format_error(data.get('file'), data.get('file_en'), data.get('file_tr'))
-
         level_of_auditorium = get_or_raise_level_of_auditorium(data.get('level_of_auditorium'))
         if level_of_auditorium:
             data.pop('level_of_auditorium')
             self.context['level_of_auditorium'] = level_of_auditorium
-
         return data
 
     def to_representation(self, instance):
@@ -108,21 +100,49 @@ class TextPostBaseSerializer(serializers.ModelSerializer):
             return res
         return {"status": True}
 
-    def get_text_or_file_and_save(self, text_obj):
+    def get_text_or_file_and_save(self, text_obj, parallel_corpus=None):
         fields = self.context['request'].data
         langs = Language.objects.filter(is_active=True)
+        if not parallel_corpus:
+            langs = langs.filter(is_main=True)
         text_or_file = []
+        line_qty = 0
         for lang in langs:
-            pass
+            text = fields.get(f'text_{lang.name}', None)
+            file = fields.get(f'file_{lang.name}', None)
+            raise_file_and_text_error(file, text)
+            if text and len(text.strip().split()) > 0:
+                if line_qty == 0:
+                    line_qty = len(text.splitlines())
+                elif line_qty != len(text.splitlines()):
+                    raise ValidationError({'error': 'The texts number of lines have to be the same!'})
+                text_or_file.append(
+                    LangText(text_obj=text_obj, lang_id=lang.id, text=text, file=file)
+                )
+            elif file:
+                file_paragraphs_qty = get_file_paragraphs_qty(file)
+                if line_qty == 0:
+                    line_qty = file_paragraphs_qty
+                elif line_qty != file_paragraphs_qty:
+                    raise ValidationError({'error': 'The files number of lines have to be the same!'})
+                text_or_file.append(
+                    LangText(text_obj=text_obj, lang_id=lang.id, text=text, file=file)
+                )
+        if not text_or_file:
+            raise ValidationError({'error': 'No file or text found!'})
+        LangText.objects.bulk_create(text_or_file)
 
     def create(self, validated_data):
         with transaction.atomic():
             obj = super().create(validated_data)
+            parallel_corpus = True if obj.corpus.key == list(CorpusChoice.choices())[0][1] else None
+            self.get_text_or_file_and_save(obj, parallel_corpus)
+
             level_of_auditorium = self.context.get('level_of_auditorium')
             if level_of_auditorium:
                 obj.level_of_auditorium.set(level_of_auditorium)
                 obj.save()
-            # raise ValueError
+            text_validate_and_config_task.delay(obj.id)
         return obj
 
 

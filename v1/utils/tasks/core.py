@@ -1,67 +1,70 @@
-from v1.core.models import Text, ParagraphOfText
+from v1.core.models import Text, ParagraphOfText, LangText
 import docx
 import re
 from celery import shared_task
-
 from v1.utils.validations import validate_text_apostrophe
 
 
-def save_paragraph_of_text(paragraphs, text_obj_id, lang='uz'):
+def save_paragraph_of_text(paragraphs, lang_text_id, text_obj_id):
     text = ''
     paragraphs_obj = []
+    order_num = 1
     for paragraph in paragraphs:
         if paragraph.text:
             validated_text = validate_text_apostrophe(paragraph.text).strip()
+            paragraphs_obj.append(ParagraphOfText(
+                text_id=text_obj_id, lang_text_id=lang_text_id, paragraph=validated_text, order_num=order_num
+            ))
             text += f'{validated_text}\n'
-            paragraphs_obj.append(ParagraphOfText(text_id=text_obj_id, paragraph=validated_text, lang=lang))
-    ParagraphOfText.objects.bulk_create(paragraphs_obj)
-    return text
+            order_num += 1
+        ParagraphOfText.objects.bulk_create(paragraphs_obj)
+        return text
 
 
-def save_text_of_paragraphs(paragraphs: str, text_obj_id, lang='uz'):
+def save_text_of_paragraphs(paragraphs: str, lang_text_id, text_obj_id):
     text = ''
     paragraphs_obj = []
+    order_num = 1
     for paragraph in paragraphs.splitlines():
         paragraph = paragraph.strip()
         if paragraph:
-            validated_text = validate_text_apostrophe(paragraph)
-            paragraphs_obj.append(ParagraphOfText(text_id=text_obj_id, paragraph=validated_text, lang=lang))
+            validated_text = validate_text_apostrophe(paragraph).strip()
+            paragraphs_obj.append(ParagraphOfText(
+                text_id=text_obj_id, lang_text_id=lang_text_id, paragraph=validated_text, order_num=order_num
+            ))
             text += f'{validated_text}\n'
+            order_num += 1
     ParagraphOfText.objects.bulk_create(paragraphs_obj)
     return text
 
 
-@shared_task()
-def count_words_and_sentences(obj_id):
-    obj = Text.objects.get(id=obj_id)
+def get_sentence_and_words_qty(text):
     sentence_enders_pattern = r'[.!?]|\.'
-    if obj.text:
-        if not obj.file:
-            obj.text = save_text_of_paragraphs(obj.text, obj_id)
-            obj.save()
-        sentences = re.split(sentence_enders_pattern, obj.text)
-        obj.sentence_qty = len(sentences)
-        obj.word_qty = len(obj.text.split())
-        obj.save()
-    if obj.text_en:
-        if not obj.file_en:
-            obj.text = save_text_of_paragraphs(obj.text, obj_id, 'en')
-            obj.save()
-        sentences = re.split(sentence_enders_pattern, obj.text_en)
-        obj.sentence_qty_en = len(sentences)
-        obj.word_qty_en = len(obj.text_en.split())
-        obj.save()
+    sentences = re.split(sentence_enders_pattern, text)
+    sentences_qty = len(sentences)
+    return sentences_qty - 1 if sentences_qty > 0 else sentences_qty, len(text.split())
+
+
+def pop_text_file_qty(text_file, lang_text_id, text_obj_id):
+    if isinstance(text_file, str):
+        text = save_text_of_paragraphs(text_file, lang_text_id, text_obj_id)
+        return get_sentence_and_words_qty(text)
+    paragraphs = docx.Document(text_file).paragraphs
+    text = save_paragraph_of_text(paragraphs, lang_text_id, text_obj_id)
+    return get_sentence_and_words_qty(text)
 
 
 @shared_task()
-def pop_text_from_file(obj_id):
-    obj = Text.objects.get(id=obj_id)
-    if obj.file:
-        paragraphs = docx.Document(obj.file).paragraphs
-        obj.text = save_paragraph_of_text(paragraphs, obj_id)
-        obj.save()
-    if obj.file_en:
-        paragraphs = docx.Document(obj.file_en).paragraphs
-        obj.text = save_paragraph_of_text(paragraphs, obj_id, 'en')
-        obj.save()
-    count_words_and_sentences.delay(obj_id)
+def text_validate_and_config_task(obj_id):
+    texts = LangText.objects.filter(text_obj_id=obj_id)
+    for text in texts:
+        if text.text:
+            sentences_qty, word_qty = pop_text_file_qty(text.text, text.id, obj_id)
+            text.word_qty = word_qty
+            text.sentence_qty = sentences_qty
+            text.save()
+        elif text.file:
+            sentences_qty, word_qty = pop_text_file_qty(text.file, text.id, obj_id)
+            text.word_qty = word_qty
+            text.sentence_qty = sentences_qty
+            text.save()

@@ -14,13 +14,13 @@ def raise_file_format_error(*files):
 
 
 def raise_file_and_text_error(file=None, text=None):
-    print(file)
-    print(text)
-    if (not file and not text) or (file and text):
+    if file and text:
         raise ValidationError({
             "status": False,
             "error": "File or text error"
         })
+    if file:
+        raise_file_format_error(file)
 
 
 def raise_file_and_text_error_en(corpus, file=None, text=None, file_en=None, text_en=None, file_tr=None, text_tr=None):
