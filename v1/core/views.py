@@ -66,7 +66,20 @@ class TextStatisticsApiV1(APIView):
         if to_date:
             filter_data &= Q(created_at__lte=to_date)
 
-        return self.queryset.filter(filter_data).only('id', 'word_qty', 'sentence_qty')
+        return self.queryset.filter(filter_data).annotate(
+            word_qty=Coalesce(Subquery(self.get_word_qty()), 0),
+            sentence_qty=Coalesce(Subquery(self.get_sentence_qty()), 0),
+        )
+
+    def get_word_qty(self):
+        return LangText.objects.select_related('text_obj', 'lang').filter(
+            text_obj_id=OuterRef('id'), lang__is_main=True
+        ).values('word_qty')
+
+    def get_sentence_qty(self):
+        return LangText.objects.select_related('text_obj', 'lang').filter(
+            text_obj_id=OuterRef('id'), lang__is_main=True
+        ).values('sentence_qty')
 
     def get_statistics(self):
         return self.get_queryset().aggregate(
