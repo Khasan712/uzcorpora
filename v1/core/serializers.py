@@ -13,6 +13,12 @@ from v1.utils.tasks.core import text_validate_and_config_task
 from v1.corpus.serializers import CorpusGetSerializer
 
 
+class LanguageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Language
+        fields = ('id', 'name', 'description', 'is_main', 'created_at', 'updated_at')
+
+
 class LiteraryGenreGetSerializer(serializers.ModelSerializer):
     class Meta:
         model = LiteraryGenre
@@ -143,7 +149,7 @@ class TextPostBaseSerializer(serializers.ModelSerializer):
             if level_of_auditorium:
                 obj.level_of_auditorium.set(level_of_auditorium)
                 obj.save()
-            text_validate_and_config_task.delay(obj.id)
+        text_validate_and_config_task.delay(obj.id)
         return obj
 
 

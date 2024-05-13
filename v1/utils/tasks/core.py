@@ -1,4 +1,4 @@
-from v1.core.models import Text, ParagraphOfText, LangText
+from v1.core.models import ParagraphOfText, LangText
 import docx
 import re
 from celery import shared_task
@@ -17,8 +17,8 @@ def save_paragraph_of_text(paragraphs, lang_text_id, text_obj_id):
             ))
             text += f'{validated_text}\n'
             order_num += 1
-        ParagraphOfText.objects.bulk_create(paragraphs_obj)
-        return text
+    ParagraphOfText.objects.bulk_create(paragraphs_obj)
+    return text
 
 
 def save_text_of_paragraphs(paragraphs: str, lang_text_id, text_obj_id):
@@ -51,7 +51,7 @@ def pop_text_file_qty(text_file, lang_text_id, text_obj_id):
         return get_sentence_and_words_qty(text)
     paragraphs = docx.Document(text_file).paragraphs
     text = save_paragraph_of_text(paragraphs, lang_text_id, text_obj_id)
-    return get_sentence_and_words_qty(text)
+    return get_sentence_and_words_qty(text)[0], get_sentence_and_words_qty(text)[1], text
 
 
 @shared_task()
@@ -64,7 +64,8 @@ def text_validate_and_config_task(obj_id):
             text.sentence_qty = sentences_qty
             text.save()
         elif text.file:
-            sentences_qty, word_qty = pop_text_file_qty(text.file, text.id, obj_id)
+            sentences_qty, word_qty, paragraph_text = pop_text_file_qty(text.file, text.id, obj_id)
             text.word_qty = word_qty
             text.sentence_qty = sentences_qty
+            text.text = paragraph_text
             text.save()

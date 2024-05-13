@@ -1,4 +1,4 @@
-from django.db.models import Q, Sum, Count, Subquery, OuterRef, Case, When
+from django.db.models import Q, Sum, Count, Subquery, OuterRef
 from django.db.models.functions import Coalesce
 from datetime import datetime
 from rest_framework.views import APIView
@@ -6,17 +6,37 @@ from rest_framework.generics import ListAPIView
 from rest_framework.viewsets import GenericViewSet
 from rest_framework.mixins import CreateModelMixin, ListModelMixin, RetrieveModelMixin, UpdateModelMixin
 from v1.core.models import (
-    CapacityLevelOfTheAuditorium, Style, Text, TextType, FieldOfApplication, LiteraryGenre, LangText
+    CapacityLevelOfTheAuditorium, Style, Text, TextType, FieldOfApplication, LiteraryGenre, LangText, Language
 )
 from v1.core.serializers import (
     CapacityLevelOfTheAuditoriumGetSerializer, NewspaperMetaDataPostSerializer, StyleGetSerializer,
     TextGetSerializer, OfficialTextMetaDataPostSerializer, TextTypeGetSerializer, JournalMetaDataPostSerializer,
     FieldOfApplicationGetSerializer, InternetInfoMetaDataPostSerializer, BookMetaDataPostSerializer,
-    LiteraryGenreGetSerializer, ArticleMetaDataPostSerializer
+    LiteraryGenreGetSerializer, ArticleMetaDataPostSerializer, LanguageSerializer
 )
 from v1.utils.permissions import IsManager, IsAdmin
 from rest_framework.validators import ValidationError
 from rest_framework.response import Response
+from rest_framework.decorators import action
+from v1.utils.constants import HTTP_METHOD_NAMES
+
+
+class LanguageApi(CreateModelMixin, ListModelMixin, RetrieveModelMixin, UpdateModelMixin, GenericViewSet):
+    permission_classes = [IsAdmin | IsManager]
+    queryset = Language.objects.order_by('-id')
+    http_method_names = HTTP_METHOD_NAMES
+    serializer_class = LanguageSerializer
+
+    def get_permissions(self):
+        req_method = self.request.method
+        if req_method in ('POST', 'PATCH'):
+            return [IsAdmin()]
+        return super().get_permissions()
+
+    @action(methods=['GET'], detail=False, url_path='main', url_name='main')
+    def get_main(self, request):
+        main_lang = self.get_queryset().filter(is_main=True).last()
+        return Response({'name': main_lang.name})
 
 
 class TextStatisticsApiV1(APIView):
@@ -134,7 +154,7 @@ class TextMetaDataApi(CreateModelMixin, ListModelMixin, RetrieveModelMixin, Upda
     queryset = Text.objects.select_related(
         'style', 'text_type', 'field_of_application', 'literary_genre'
     ).prefetch_related('level_of_auditorium').order_by('-id')
-    http_method_names = ["get", "post", "patch", "head", "options", "trace"]
+    http_method_names = HTTP_METHOD_NAMES
 
     def get_queryset(self):
         params = self.request.query_params
@@ -143,14 +163,12 @@ class TextMetaDataApi(CreateModelMixin, ListModelMixin, RetrieveModelMixin, Upda
         source_type = params.get('source_type')
 
         try:
-            from_date = params.get('from_date')
-            from_date = datetime.strptime(str(from_date), '%Y-%m-%d')
+            from_date = datetime.strptime(str(params.get('from_date')), '%Y-%m-%d')
         except Exception:
             from_date = None
 
         try:
-            to_date = params.get('to_date')
-            to_date = datetime.strptime(str(to_date), '%Y-%m-%d')
+            to_date = datetime.strptime(str(params.get('to_date')), '%Y-%m-%d')
         except:
             to_date = None
 
