@@ -160,7 +160,7 @@ class NewspaperMetaDataPostSerializer(TextPostBaseSerializer):
         model = Text
         fields = [
             'number', 'net_address', 'theme', 'author', 'author_type', 'wrote_at',
-            'published_at', 'style', 'auditorium_age', 'level_of_auditorium'
+            'published_at', 'style', 'auditorium_age', 'level_of_auditorium',
         ] + GENERAL_TEXT_FIELDS
 
         extra_kwargs = {
@@ -179,7 +179,7 @@ class OfficialTextMetaDataPostSerializer(TextPostBaseSerializer):
     class Meta:
         model = Text
         fields = [
-            'number', 'net_address', 'document_type', 'document_owner', 'published_at'
+            'number', 'net_address', 'document_type', 'document_owner', 'published_at',
         ] + GENERAL_TEXT_FIELDS
 
         extra_kwargs = {
@@ -199,7 +199,7 @@ class JournalMetaDataPostSerializer(TextPostBaseSerializer):
         model = Text
         fields = [
             'number', 'net_address', 'theme', 'author', 'author_type', 'wrote_at', 'published_at', 'publisher',
-            'text_number', 'issn', 'text_type', 'style', 'auditorium_age', 'level_of_auditorium'
+            'text_number', 'issn', 'text_type', 'style', 'auditorium_age', 'level_of_auditorium',
          ] + GENERAL_TEXT_FIELDS
 
         extra_kwargs = {
@@ -221,7 +221,7 @@ class InternetInfoMetaDataPostSerializer(TextPostBaseSerializer):
         model = Text
         fields = [
             'net_address', 'author', 'author_type', 'wrote_at', 'published_at', 'field_of_application',
-            'text_type', 'style', 'auditorium_age', 'level_of_auditorium'
+            'text_type', 'style', 'auditorium_age', 'level_of_auditorium', 'literary_genre'
         ] + GENERAL_TEXT_FIELDS
 
         extra_kwargs = {
@@ -243,14 +243,13 @@ class BookMetaDataPostSerializer(TextPostBaseSerializer):
         fields = [
             'authors', 'wrote_at', 'published_at', 'publisher', 'text_number', 'isbn', 'text_type',
             'literary_genre', 'time_and_place_of_the_event', 'style', 'auditorium_age', 'level_of_auditorium',
-            'field_of_application' 'net_address'
+            'field_of_application', 'net_address'
         ] + GENERAL_TEXT_FIELDS
 
         extra_kwargs = {
             'text': {'write_only': True},
             'name': {'required': True},
             'authors': {'required': True},
-            'published_at': {'required': True},
             'literary_genre': {'required': True},
             'style': {'required': True},
             'corpus': {'required': True},
@@ -264,7 +263,7 @@ class ArticleMetaDataPostSerializer(TextPostBaseSerializer):
         model = Text
         fields = [
             'authors', 'article_created_at', 'pages_qty', 'name_of_article', 'published_at', 'issn', 'net_address',
-            'text_type', 'style', 'auditorium_age', 'level_of_auditorium', 'field_of_application'
+            'text_type', 'style', 'auditorium_age', 'level_of_auditorium', 'field_of_application',
         ] + GENERAL_TEXT_FIELDS
 
         extra_kwargs = {
@@ -272,7 +271,6 @@ class ArticleMetaDataPostSerializer(TextPostBaseSerializer):
             'name': {'required': True},
             'authors': {'required': True},
             'article_created_at': {'required': True},
-            'pages_qty': {'required': True},
             'name_of_article': {'required': True},
             'style': {'required': True},
             'corpus': {'required': True},

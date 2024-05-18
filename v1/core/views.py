@@ -26,6 +26,7 @@ class LanguageApi(CreateModelMixin, ListModelMixin, RetrieveModelMixin, UpdateMo
     queryset = Language.objects.order_by('-id')
     http_method_names = HTTP_METHOD_NAMES
     serializer_class = LanguageSerializer
+    pagination_class = None
 
     def get_permissions(self):
         req_method = self.request.method
@@ -111,8 +112,9 @@ class TextStatisticsApiV1(APIView):
 
 
 class LiteraryGenreGetApi(ListAPIView):
-    queryset = LiteraryGenre.objects.order_by('-id').select_related('parent')
+    queryset = LiteraryGenre.objects.select_related('parent').order_by('-id')
     serializer_class = LiteraryGenreGetSerializer
+    pagination_class = None
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -125,21 +127,25 @@ class LiteraryGenreGetApi(ListAPIView):
 class FieldOfApplicationGetAPi(ListAPIView):
     queryset = FieldOfApplication.objects.order_by('-id')
     serializer_class = FieldOfApplicationGetSerializer
+    pagination_class = None
 
 
 class TextTypeGetAPi(ListAPIView):
     queryset = TextType.objects.order_by('-id')
     serializer_class = TextTypeGetSerializer
+    pagination_class = None
 
 
 class StyleGetApi(ListAPIView):
     queryset = Style.objects.order_by('-id')
     serializer_class = StyleGetSerializer
+    pagination_class = None
 
 
 class LevelOfAuditoriumGetApi(ListAPIView):
     queryset = CapacityLevelOfTheAuditorium.objects.select_related('parent').order_by('-id')
     serializer_class = CapacityLevelOfTheAuditoriumGetSerializer
+    pagination_class = None
 
     def get_queryset(self):
         queryset = super().get_queryset()

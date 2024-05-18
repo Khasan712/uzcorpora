@@ -6,6 +6,7 @@ from v1.corpus.serializers import CorpusGetSerializer
 class CorpusGetApi(ListAPIView):
     queryset = Corpus.objects.select_related('parent').order_by('-id')
     serializer_class = CorpusGetSerializer
+    pagination_class = None
 
     def get_queryset(self):
         queryset = super().get_queryset()

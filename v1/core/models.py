@@ -10,6 +10,9 @@ from v1.utils.validations import validate_file_format_excel
 
 
 class Language(CustomBaseAbstract):
+    """
+    Tillar
+    """
     name = models.CharField(max_length=10, unique=True)
     description = models.CharField(max_length=100)
     is_main = models.BooleanField(default=False)
@@ -22,6 +25,9 @@ class Language(CustomBaseAbstract):
 
 
 class LangText(CustomBaseAbstract):
+    """
+    Har bitta til uchun kiritilgan matn
+    """
     text_obj = models.ForeignKey('core.Text', on_delete=models.SET_NULL, null=True)
     lang = models.ForeignKey(Language, on_delete=models.SET_NULL, null=True)
     text = models.TextField(blank=True, null=True)
@@ -38,11 +44,7 @@ class LangText(CustomBaseAbstract):
 
 class Phrase(CustomBaseAbstract):
     """
-    uz,
-    So'z turkumlari uchun model
-
-    en,
-    Model for phrases
+    So'z turkumlari
     """
     name = models.CharField(max_length=255)
     parent = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True)
@@ -54,11 +56,7 @@ class Phrase(CustomBaseAbstract):
 
 class Word(CustomBaseAbstract):
     """
-    uz,
     So'z bazasi modeli
-
-    en,
-    Word db model
     """
     phrase = models.ForeignKey(Phrase, on_delete=models.SET_NULL, null=True)
     word = models.CharField(max_length=255)
@@ -71,11 +69,7 @@ class Word(CustomBaseAbstract):
 
 class WordGrammar(CustomBaseAbstract):
     """
-    uz,
     So'z grammatikasi - bittaga ko'p
-
-    en,
-    Word grammatics - one 2 many
     """
     word = models.ForeignKey(Word, on_delete=models.SET_NULL, null=True, related_name='word_grammars')
     phrase = models.ForeignKey(Phrase, on_delete=models.SET_NULL, null=True)
@@ -92,11 +86,7 @@ class WordGrammar(CustomBaseAbstract):
 
 class WordSemanticExpression(CustomBaseAbstract):
     """
-    uz,
     So'zning simmantik ifodasi - bittaga ko'p
-
-    en,
-    Word semantic expression - one 2 many
     """
     word = models.ForeignKey(Word, on_delete=models.SET_NULL, null=True, related_name='word_semantic_expressions')
     phrase = models.ForeignKey(Phrase, on_delete=models.SET_NULL, null=True)
@@ -113,11 +103,7 @@ class WordSemanticExpression(CustomBaseAbstract):
 
 class CreateWordFromExcel(CustomBaseAbstract):
     """
-    uz,
     So'zlarni excel fayldan o'qib yaratish modeli
-
-    en,
-    Creating words from excel model
     """
     phrase = models.ForeignKey(Phrase, on_delete=models.SET_NULL, null=True)
     word_phrase = models.CharField(max_length=50, choices=WordPhrase.choices())
@@ -134,6 +120,9 @@ class CreateWordFromExcel(CustomBaseAbstract):
 
 
 class CapacityLevelOfTheAuditorium(CustomBaseAbstract):
+    """
+    Salohiyat darajasi
+    """
     name = models.CharField(_("Salohiyat darajasi"), max_length=100)
     parent = models.ForeignKey('self', on_delete=models.SET_NULL, blank=True, null=True)
 
@@ -145,6 +134,9 @@ class CapacityLevelOfTheAuditorium(CustomBaseAbstract):
 
 
 class TextType(CustomBaseAbstract):
+    """
+    Matn tipi
+    """
     name = models.CharField(_("Matn tipi"), max_length=255)
 
     def __str__(self):
@@ -152,6 +144,9 @@ class TextType(CustomBaseAbstract):
 
 
 class FieldOfApplication(CustomBaseAbstract):
+    """
+    Qo'llanish sahasi
+    """
     name = models.CharField(_("Qo'llanish sohasi"), max_length=255)
 
     def __str__(self):
@@ -159,6 +154,9 @@ class FieldOfApplication(CustomBaseAbstract):
 
 
 class LiteraryGenre(CustomBaseAbstract):
+    """
+    Adabiy tur
+    """
     name = models.CharField(_("Adabiy turi"), max_length=100)
     parent = models.ForeignKey('self', on_delete=models.SET_NULL, blank=True, null=True)
 
@@ -167,6 +165,9 @@ class LiteraryGenre(CustomBaseAbstract):
 
 
 class Style(CustomBaseAbstract):
+    """
+    Uslubi
+    """
     name = models.CharField(_("Uslub"), max_length=255)
 
     def __str__(self):
@@ -174,6 +175,9 @@ class Style(CustomBaseAbstract):
 
 
 class Text(CoreBaseAbstract):
+    """
+    Meta ma'lumot
+    """
     # Newspaper
     number = models.CharField(_("Nashr raqami"), max_length=100, blank=True, null=True)
     net_address = models.CharField(_("NET-manzili"), max_length=500, blank=True, null=True)
@@ -220,7 +224,7 @@ class Text(CoreBaseAbstract):
 
     # article
     article_created_at = models.DateTimeField(_("Chop etilgan vaqti"), blank=True, null=True)
-    pages_qty = models.PositiveIntegerField(_("Sahifalari"), blank=True, null=True)
+    pages_qty = models.CharField(_("Sahifalari"), blank=True, null=True)
     name_of_article = models.CharField(_("Manbaning (jurnal, kitob) nomi"), max_length=255, blank=True, null=True)
 
     class Meta:
@@ -231,10 +235,12 @@ class Text(CoreBaseAbstract):
 
 
 class ParagraphOfText(CustomBaseAbstract):
+    """
+    Matn ichidagi abzatslar alohida obyekt bo'lib saqlanadi va har bitta abzats shu modelning instance bo'ladi
+    """
     text = models.ForeignKey(Text, on_delete=models.SET_NULL, null=True)
     lang_text = models.ForeignKey(LangText, on_delete=models.SET_NULL, blank=True, null=True)
     paragraph = models.TextField()
-    # lang = models.CharField(max_length=5, choices=Lang.choices(), default='uz')
     uuid = models.CharField(max_length=250, blank=True, null=True)
     order_num = models.PositiveIntegerField(default=1)
 
