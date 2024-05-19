@@ -130,8 +130,8 @@ class TextPostBaseSerializer(serializers.ModelSerializer):
             raise_file_and_text_error(file, text)
             if text and len(text.strip().split()) > 0:
                 if line_qty == 0:
-                    line_qty = len(text.splitlines())
-                elif line_qty != len(text.splitlines()):
+                    line_qty = len(text.split('\n\n'))
+                elif line_qty != len(text.split('\n\n')):
                     raise ValidationError({'error': 'The texts number of lines have to be the same!'})
                 text_or_file.append(
                     LangText(text_obj=text_obj, lang_id=lang.id, text=text, file=file)
