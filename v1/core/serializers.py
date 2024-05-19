@@ -61,6 +61,15 @@ class TextGetSerializer(serializers.ModelSerializer):
         res['word_qty'] = getattr(instance, 'word_qty', 0)
         res['sentence_qty'] = getattr(instance, 'sentence_qty', 0)
         res['text_file'] = FILE_TYPE if getattr(instance, 'file', None) else TEXT_TYPE
+        res['creator'] = {
+            'id': instance.creator.id,
+            'first_name': instance.creator.first_name,
+            'phone_number': instance.creator.phone_number,
+        } if instance.creator else None
+        try:
+            res['source_type_description'] = instance.source_type_description
+        except:
+            pass
         return res
 
 
