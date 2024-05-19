@@ -7,3 +7,4 @@ def get_file_paragraphs_qty(file):
     for paragraph in paragraphs:
         text += f'{paragraph.text}\n'
     return len(text.strip().split('\n\n'))
+
