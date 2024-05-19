@@ -128,7 +128,7 @@ class TextPostBaseSerializer(serializers.ModelSerializer):
             text = fields.get(f'text_{lang.name}', None)
             file = fields.get(f'file_{lang.name}', None)
             raise_file_and_text_error(file, text)
-            if text and len(text.strip().split()) > 0:
+            if text:
                 if line_qty == 0:
                     line_qty = len(text.split('\n\n'))
                 elif line_qty != len(text.split('\n\n')):
