@@ -44,7 +44,7 @@ class LanguageApi(CreateModelMixin, ListModelMixin, RetrieveModelMixin, UpdateMo
 
 
 class TextStatisticsApiV1(APIView):
-    permission_classes = (IsAdmin,)
+    permission_classes = [IsAdmin | IsManager]
     queryset = Text.objects.select_related(
         'style', 'text_type', 'field_of_application', 'literary_genre'
     ).prefetch_related('level_of_auditorium').order_by('-id')
@@ -67,7 +67,7 @@ class TextStatisticsApiV1(APIView):
         except:
             to_date = None
 
-        filter_data = Q()
+        filter_data = Q(creator_id=self.request.user.id) if self.request.user.role == 'manager' else Q()
 
         if search_param:
             filter_data &= (
