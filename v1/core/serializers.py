@@ -173,7 +173,6 @@ class NewspaperMetaDataPostSerializer(TextPostBaseSerializer):
         ] + GENERAL_TEXT_FIELDS
 
         extra_kwargs = {
-            'text': {'write_only': True},
             'name': {'required': True},
             'theme': {'required': True},
             'author': {'required': True},
@@ -192,7 +191,6 @@ class OfficialTextMetaDataPostSerializer(TextPostBaseSerializer):
         ] + GENERAL_TEXT_FIELDS
 
         extra_kwargs = {
-            'text': {'write_only': True},
             'document_type': {'required': True},
             'name': {'required': True},
             'published_at': {'required': True},
@@ -212,7 +210,6 @@ class JournalMetaDataPostSerializer(TextPostBaseSerializer):
          ] + GENERAL_TEXT_FIELDS
 
         extra_kwargs = {
-            'text': {'write_only': True},
             'name': {'required': True},
             'theme': {'required': True},
             'author': {'required': True},
@@ -234,7 +231,6 @@ class InternetInfoMetaDataPostSerializer(TextPostBaseSerializer):
         ] + GENERAL_TEXT_FIELDS
 
         extra_kwargs = {
-            'text': {'write_only': True},
             'name': {'required': True},
             'author': {'required': True},
             'published_at': {'required': True},
@@ -256,7 +252,6 @@ class BookMetaDataPostSerializer(TextPostBaseSerializer):
         ] + GENERAL_TEXT_FIELDS
 
         extra_kwargs = {
-            'text': {'write_only': True},
             'name': {'required': True},
             'authors': {'required': True},
             'literary_genre': {'required': True},
@@ -276,7 +271,6 @@ class ArticleMetaDataPostSerializer(TextPostBaseSerializer):
         ] + GENERAL_TEXT_FIELDS
 
         extra_kwargs = {
-            'text': {'write_only': True},
             'name': {'required': True},
             'authors': {'required': True},
             'article_created_at': {'required': True},
