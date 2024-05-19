@@ -215,12 +215,12 @@ class TextMetaDataApi(CreateModelMixin, ListModelMixin, RetrieveModelMixin, Upda
                 file=Coalesce(self.get_file(), None),
                 source_type_description=Case(
                     When(source_type=source_types[0], then=Value(NEWSPAPER_SOURCE_TYPE_UZ)),
-                    When(source_type=source_types[0], then=Value(OFFICIAL_TEXT_SOURCE_TYPE_UZ)),
-                    When(source_type=source_types[1], then=Value(JOURNAL_SOURCE_TYPE_UZ)),
-                    When(source_type=source_types[2], then=Value(INTERNET_INFO_SOURCE_TYPE_UZ)),
-                    When(source_type=source_types[3], then=Value(BOOK_SOURCE_TYPE_UZ)),
-                    When(source_type=source_types[4], then=Value(ARTICLE_SOURCE_TYPE_UZ)),
-                    When(source_type=source_types[5], then=Value(OTHER_SOURCE_TYPE_UZ)),
+                    When(source_type=source_types[1], then=Value(OFFICIAL_TEXT_SOURCE_TYPE_UZ)),
+                    When(source_type=source_types[2], then=Value(JOURNAL_SOURCE_TYPE_UZ)),
+                    When(source_type=source_types[3], then=Value(INTERNET_INFO_SOURCE_TYPE_UZ)),
+                    When(source_type=source_types[4], then=Value(BOOK_SOURCE_TYPE_UZ)),
+                    When(source_type=source_types[5], then=Value(ARTICLE_SOURCE_TYPE_UZ)),
+                    When(source_type=source_types[6], then=Value(OTHER_SOURCE_TYPE_UZ)),
                     default='source_type', output_field=CharField()
                 )
             )
