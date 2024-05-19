@@ -279,4 +279,3 @@ class ArticleMetaDataPostSerializer(TextPostBaseSerializer):
             'corpus': {'required': True},
         }
 
-
