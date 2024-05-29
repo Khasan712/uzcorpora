@@ -54,6 +54,7 @@ class TextStatisticsApiV1(APIView):
         search_param = params.get('q')
         corpus_id = params.get('corpus_id')
         source_type = params.get('source_type')
+        user_id = params.get('user_id')
 
         try:
             from_date = params.get('from_date')
@@ -85,6 +86,8 @@ class TextStatisticsApiV1(APIView):
             filter_data &= Q(corpus_id__in=corpus_id.split(','))
         if source_type:
             filter_data &= Q(source_type__in=source_type.split(','))
+        if user_id and str(user_id).replace(',', '').isdigit():
+            filter_data &= Q(creator_id__in=user_id.split(','))
         if from_date:
             filter_data &= Q(created_at__gte=from_date)
         if to_date:
@@ -201,7 +204,7 @@ class TextMetaDataApi(CreateModelMixin, ListModelMixin, RetrieveModelMixin, Upda
         if source_type:
             filter_data &= Q(source_type__in=source_type.split(','))
         if user_id and str(user_id).replace(',', '').isdigit():
-            filter_data &= Q(creator_id__in=corpus_id.split(','))
+            filter_data &= Q(creator_id__in=user_id.split(','))
         if from_date:
             filter_data &= Q(created_at__gte=from_date)
         if to_date:
