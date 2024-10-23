@@ -61,20 +61,6 @@ services:
     volumes:
       - .:/uzcorpora
 
-#  elasticsearch:
-#    container_name: 'elasticsearch_uzcorpora'
-#    image: docker.elastic.co/elasticsearch/elasticsearch:8.13.2
-#    ports:
-#      - 9200:9200
-#    env_file:
-#      - ./.env
-#
-#  kibana:
-#    container_name: 'kibana_uzcorpora'
-#    image: docker.elastic.co/kibana/kibana:8.13.2
-#    volumes:
-#      - ./kibana.yml:/usr/share/kibana/config/kibana.yml
-
 volumes:
   postgres_data_uzcorpora:
   redis_data_uzcorpora:
