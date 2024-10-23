@@ -78,4 +78,3 @@ services:
 volumes:
   postgres_data_uzcorpora:
   redis_data_uzcorpora:
-
